@@ -2,10 +2,23 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 
 from itemcatalog import app
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+
+from models import Base, Category, Item, User
+
+engine = create_engine('postgres://ryztryqknsyzog:fVxpW9KcpmHAFAqMo1mBcidICf@ec2-107-21-219-109.compute-1.amazonaws.com:5432/d4kcqmr928j0p2')
+Base.metadata.bind = engine
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
+
 @app.route('/')
 @app.route('/category/')
-def showCatagory():
-	return 'The category page will show catagories and recent items.'
+def showCategories():
+	categories = session.query(Category).order_by(Category.name)
+	items = session.query(Item).order_by(Item.dateCreated).slice(0, 10)
+	return render_template('category.html', categories = categories, items = items)
 
 
 @app.route('/login/')
@@ -27,6 +40,11 @@ def showUser(user_id):
 @app.route('/category/add')
 def addCategory():
 	return 'Add categories here.'
+
+
+@app.route('/category/')
+def showCategory(category_id):
+	pass
 
 
 @app.route('/category/<int:category_id>/edit/')
