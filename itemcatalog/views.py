@@ -58,12 +58,25 @@ def addCategory():
 
 @app.route('/category/<int:category_id>/')
 def showCategory(category_id):
-    pass
+    return "This will show a category."
 
 
-@app.route('/category/<int:category_id>/edit/')
+@app.route('/category/<int:category_id>/edit/', methods=['GET','POST'])
 def editCategory(category_id):
-    return 'Edit categories here.'
+    if 'username' not in login_session:
+        return redirect('/login')    
+    category = session.query(Category).filter_by(id=category_id).one()
+    form = CategoryForm(obj=category)
+    if request.method == 'POST':  # and form.validate()
+        category.name = form.name.data
+        category.description = form.description.data
+        category.picture = form.picture.data
+        session.add(category)
+        session.commit()
+        flash(' Category %s Successfully Edited' % category.name)
+        return redirect(url_for('showCategory', category_id=category_id))
+    else:
+        return render_template('editCategory.html', form=form, category = category)
 
 
 @app.route('/category/<int:category_id>/delete/')
