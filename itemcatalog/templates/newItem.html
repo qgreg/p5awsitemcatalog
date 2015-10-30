@@ -6,15 +6,16 @@
 	</div>
 	<div class="row banner menu">
 		<div class="col-md-11 col-md-offset-1 padding-none">
-			<h1>New Category</h1>
+			<h1>New Item for Category {{category.name}}</h1>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-6 col-md-offset-1 padding-top">
-			<form method="POST" action="{{ url_for('addCategory')}}">
+			<form method="POST" action="{{ url_for('addItem', category_id=category.id) }}">
     			<div class="form-group">
     				<div>{{ form.name.label }}: {{ form.name(class="form-control", maxlength="100") }}</div>
     				<div>{{ form.description.label }}: {{ form.description(class="form-control", maxlength="100") }}</div>
+                    <div>{{ form.picture.label }}: {{ form.picture(class="form-control", maxlength="100") }}</div>
     				<div class="padding-bottom"></div>
     				<button type="submit" class="btn btn-default" id="submit" type="submit">
 					Create</button>

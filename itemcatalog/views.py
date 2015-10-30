@@ -13,7 +13,7 @@ from models import Base, Category, Item, Users
 from flask import session as login_session
 import random, string
 
-from forms import CategoryForm
+from forms import CategoryForm, ItemForm
 
 app.register_blueprint(login_blueprint)
 
@@ -76,10 +76,26 @@ def showItem(item_id):
     return 'The item page will a particular item.'
 
 
-@app.route('/item/add/')
-def addItem():
-    return 'Add an item here.'
-
+@app.route('/category/<int:category_id>/item/add/', methods=['GET','POST'])
+def addItem(category_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    category = session.query(Category).filter_by(id=category_id).one()
+    form = ItemForm()
+    if request.method == 'POST': # and form.validate()
+        item = Item()
+        item.name = form.name.data
+        item.description = form.description.data
+        item.picture = form.picture.data
+        item.dateCreated = datetime.now()
+        item.users_id = login_session['users_id']
+        item.category_id = category_id
+        session.add(item)
+        session.commit() 
+        flash('New Category %s Successfully Created' % category.name)
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('newItem.html', form=form, category=category)
 
 @app.route('/item/<int:item_id>/edit/')
 def editItem(item_id):
