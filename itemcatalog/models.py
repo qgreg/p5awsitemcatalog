@@ -7,6 +7,17 @@ from sqlalchemy import create_engine
  
 Base = declarative_base()
 
+
+class Users(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key = True)
+    name =Column(String(80), nullable = False)
+    email = Column(String(250))
+    picture = Column(String(250))
+    admin = Column(Boolean)
+
+
 class Category(Base):
     __tablename__ = 'category'
    
@@ -15,6 +26,9 @@ class Category(Base):
     picture = Column(String(250))
     dateCreated = Column(Date)
     id = Column(Integer, primary_key=True)
+    users = relationship(Users)
+    users_id = Column(Integer, ForeignKey('users.id'))
+
 
 
 class Item(Base):
@@ -29,17 +43,9 @@ class Item(Base):
     amazon_img = Column(String(250))
     picture = Column(String(250))
     category_id = Column(Integer,ForeignKey('category.id'))
-    category = relationship(Category) 
-
-
-class User(Base):
-    __tablename__ = 'user'
-
-    id = Column(Integer, primary_key = True)
-    name =Column(String(80), nullable = False)
-    email = Column(String(250))
-    picture = Column(String(250))
-    admin = Column(Boolean)
+    users_id = Column(Integer, ForeignKey('users.id'))
+    category = relationship(Category)
+    users = relationship(Users)
 
 
 engine = create_engine('postgres://ryztryqknsyzog:fVxpW9KcpmHAFAqMo1mBcidICf@ec2-107-21-219-109.compute-1.amazonaws.com:5432/d4kcqmr928j0p2')

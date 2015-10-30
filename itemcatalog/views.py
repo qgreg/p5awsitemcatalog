@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-from models import Base, Category, Item, User
+from models import Base, Category, Item, Users
 
 from flask import session as login_session
 import random, string
@@ -31,7 +31,7 @@ def showCategories():
     return render_template('category.html', categories=categories, items=items)
 
 
-@app.route('/user/<int:user_id>')
+@app.route('/user/<int:users_id>')
 def showUser(user_id):
     # Should user profile be invisible? Perhaps. Then no number
     return 'Users will see profiles here.'
@@ -48,7 +48,7 @@ def addCategory():
         category.description = form.description.data
         category.picture = form.picture.data
         category.dateCreated = datetime.now()
-        category.user_id = login_session['user_id']
+        category.users_id = login_session['users_id']
         session.add(category)
         session.commit() 
         flash('New Category %s Successfully Created' % category.name)

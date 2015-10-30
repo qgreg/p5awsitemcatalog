@@ -15,7 +15,7 @@ import requests
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from itemcatalog.models import Base, User
+from itemcatalog.models import Base, Users
 
 engine = create_engine('postgres://ryztryqknsyzog:fVxpW9KcpmHAFAqMo1mBcidICf@ec2-107-21-219-109.compute-1.amazonaws.com:5432/d4kcqmr928j0p2')  # noqa
 Base.metadata.bind = engine
@@ -92,10 +92,10 @@ def fbconnect():
     login_session['picture'] = data["data"]["url"]
 
     # see if user exists, then store user id
-    user_id = getUserID(login_session['email'])
-    if not user_id:
-        user_id = createUser(login_session)
-    login_session['user_id'] = user_id
+    users_id = getUsersID(login_session['email'])
+    if not users_id:
+        users_id = createUsers(login_session)
+    login_session['users_id'] = users_id
 
     # Output login acknowledgement
     output = ''
@@ -153,7 +153,7 @@ def gconnect():
 
     # Verify that the access token is used for the intended user.
     gplus_id = credentials.id_token['sub']
-    if result['user_id'] != gplus_id:
+    if result['users_id'] != gplus_id:
         response = make_response(
             json.dumps("Token's user ID doesn't match given user ID."), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -191,12 +191,12 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
-    # Get user_id of user, create new one if none exists
+    # Get users_id of user, create new one if none exists
     email = login_session['email']
-    user_id = getUserID(email)
-    if user_id is None:
-        user_id = createUser(login_session)
-    login_session['user_id'] = user_id
+    users_id = getUsersID(email)
+    if users_id is None:
+        users_id = createUsers(login_session)
+    login_session['users_id'] = users_id
 
     # Acknowledge login
     output = ''
@@ -227,14 +227,14 @@ def disconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
-        del login_session['user_id']
+        del login_session['users_id']
         del login_session['provider']
 
         flash("You have successfully logged out.")
-        return redirect(url_for('showCategory'))
+        return redirect(url_for('showCategories'))
     else:
         flash("You are not currently logged in.")
-        return redirect(url_for('showCategory'))
+        return redirect(url_for('showCategories'))
 
 
 @login_blueprint.route('/gdisconnect')
@@ -267,25 +267,23 @@ def gdisconnect():
         return response
 
 
-def createUser(login_session):
-    newUser = User(name=login_session['username'], email=login_session['email'], 
+def createUsers(login_session):
+    newUser = Users(name=login_session['username'], email=login_session['email'], 
       picture=login_session['picture'])
     session.add(newUser)
     session.commit()
-    user = session.query(User).filter_by(email=login_session['email']).one()
-    return user.id
+    users = session.query(Users).filter_by(email=login_session['email']).one()
+    return users.id
 
 
-def getUserInfo(user_id):
-    user = session.query(User).filter_by(id=user_id).one()
-    return user
+def getUsersInfo(users_id):
+    users = session.query(Users).filter_by(id=users_id).one()
+    return users
 
 
-def getUserID(email):
+def getUsersID(email):
     try:
-        user = session.query(User).filter_by(email=email).one()
-        return user.id
+        users = session.query(Users).filter_by(email=email).one()
+        return users.id
     except:
         return None
-
-
