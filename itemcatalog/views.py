@@ -8,10 +8,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-from itemcatalog.models import Base, Category, Item, User
+from models import Base, Category, Item, User
 
 from flask import session as login_session
 import random, string
+
+from forms import CategoryForm
 
 app.register_blueprint(login_blueprint)
 
@@ -35,12 +37,26 @@ def showUser(user_id):
     return 'Users will see profiles here.'
 
 
-@app.route('/category/add')
+@app.route('/category/add', methods=['GET','POST'])
 def addCategory():
-    return 'Add categories here.'
+    if 'username' not in login_session:
+        return redirect('/login')
+    form = CategoryForm()
+    if request.method == 'POST': # and form.validate()
+        category = Category()
+        category.name = form.name.data
+        category.description = form.description.data
+        category.picture = form.picture.data
+        category.dateCreated = datetime.now()
+        category.user_id = login_session['user_id']
+        session.add(category)
+        session.commit() 
+        flash('New Category %s Successfully Created' % category.name)
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('newCategory.html', form=form)
 
-
-@app.route('/category/')
+@app.route('/category/<int:category_id>/')
 def showCategory(category_id):
     pass
 
