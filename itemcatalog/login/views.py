@@ -231,10 +231,10 @@ def disconnect():
         del login_session['provider']
 
         flash("You have successfully logged out.")
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showHome'))
     else:
         flash("You are not currently logged in.")
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showHome'))
 
 
 @login_blueprint.route('/gdisconnect')

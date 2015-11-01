@@ -24,8 +24,8 @@ session = DBSession()
 
 
 @app.route('/')
-@app.route('/category/')
-def showCategories():
+@app.route('/home/')
+def showHome():
     categories = session.query(Category).order_by(Category.name)
     items = session.query(Item).order_by(Item.dateCreated).slice(0, 10)
     return render_template('category.html', categories=categories, items=items)
@@ -52,14 +52,15 @@ def addCategory():
         session.add(category)
         session.commit() 
         flash('New Category %s Successfully Created' % category.name)
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showHome'))
     else:
         return render_template('newCategory.html', form=form)
 
 @app.route('/category/<int:category_id>/')
 def showCategory(category_id):
-    return "This will show a category."
-
+    category = session.query(Category).filter_by(id=category_id).one()
+    items = session.query(Item).filter_by(category_id=category.id)
+    return render_template('showCategory.html', category=category, items=items)
 
 @app.route('/category/<int:category_id>/edit/', methods=['GET','POST'])
 def editCategory(category_id):
@@ -91,14 +92,9 @@ def deleteCategory(category_id):
         session.delete(category)
         flash('%s Successfully Deleted' % category.name)
         session.commit()
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showHome'))
     else:
         return render_template('deleteCategory.html',category=category)
-
-
-@app.route('/item/<int:item_id>/')
-def showItem(item_id):
-    return 'The item page will a particular item.'
 
 
 @app.route('/category/<int:category_id>/item/add/', methods=['GET','POST'])
@@ -118,9 +114,10 @@ def addItem(category_id):
         session.add(item)
         session.commit() 
         flash('New Category %s Successfully Created' % category.name)
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showHome'))
     else:
         return render_template('newItem.html', form=form, category=category)
+
 
 @app.route('/item/<int:item_id>/edit/', methods=['GET','POST'])
 def editItem(item_id):
@@ -138,6 +135,7 @@ def editItem(item_id):
         return redirect(url_for('showCategory', category_id=item.category_id))
     else:
         return render_template('editItem.html', form=form, item=item)
+
 
 @app.route('/item/<int:item_id>/delete', methods=['GET','POST'])
 def deleteItem(item_id):
