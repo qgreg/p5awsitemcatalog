@@ -141,4 +141,17 @@ def editItem(item_id):
 
 @app.route('/item/<int:item_id>/delete', methods=['GET','POST'])
 def deleteItem(item_id):
-    return 'Delete a item here.'
+    if 'username' not in login_session:
+        return redirect('/login')
+    item = session.query(Item).filter_by(id=item_id).one()
+    category = session.query(Category).filter_by(id=item.category_id).one()
+    if login_session['users_id'] != item.users_id:
+        flash('User does not have permission to delete %s.' % category.name)
+        return redirect(url_for('showCategory', category_id = category.id))
+    if request.method == 'POST':
+        session.delete(item)
+        flash('%s Successfully Deleted' % item.name)
+        session.commit()
+        return redirect(url_for('showCategory', category_id=category.id))
+    else:
+        return render_template('deleteItem.html',item=item)
