@@ -79,9 +79,21 @@ def editCategory(category_id):
         return render_template('editCategory.html', form=form, category=category)
 
 
-@app.route('/category/<int:category_id>/delete/')
+@app.route('/category/<int:category_id>/delete/', methods=['GET','POST'])
 def deleteCategory(category_id):
-    return 'Delete a category here.'
+    if 'username' not in login_session:
+        return redirect('/login')
+    category = session.query(Category).filter_by(id=category_id).one()
+    if login_session['users_id'] != category.users_id:
+        flash('User does not have permission to delete %s.' % category.name)
+        return redirect(url_for('showCategory', category_id = category.id))
+    if request.method == 'POST':
+        session.delete(category)
+        flash('%s Successfully Deleted' % category.name)
+        session.commit()
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('deleteCategory.html',category=category)
 
 
 @app.route('/item/<int:item_id>/')
@@ -127,6 +139,6 @@ def editItem(item_id):
     else:
         return render_template('editItem.html', form=form, item=item)
 
-@app.route('/item/<int:item_id>/delete')
+@app.route('/item/<int:item_id>/delete', methods=['GET','POST'])
 def deleteItem(item_id):
     return 'Delete a item here.'
