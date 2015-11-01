@@ -76,7 +76,7 @@ def editCategory(category_id):
         flash(' Category %s Successfully Edited' % category.name)
         return redirect(url_for('showCategory', category_id=category_id))
     else:
-        return render_template('editCategory.html', form=form, category = category)
+        return render_template('editCategory.html', form=form, category=category)
 
 
 @app.route('/category/<int:category_id>/delete/')
@@ -110,10 +110,22 @@ def addItem(category_id):
     else:
         return render_template('newItem.html', form=form, category=category)
 
-@app.route('/item/<int:item_id>/edit/')
+@app.route('/item/<int:item_id>/edit/', methods=['GET','POST'])
 def editItem(item_id):
-    return 'Edit an item here.'
-
+    if 'username' not in login_session:
+        return redirect('/login')    
+    item = session.query(Item).filter_by(id=item_id).one()
+    form = ItemForm(obj=item)
+    if request.method == 'POST':  # and form.validate()
+        item.name = form.name.data
+        item.description = form.description.data
+        item.picture = form.picture.data
+        session.add(item)
+        session.commit()
+        flash(' Item %s Successfully Edited' % item.name)
+        return redirect(url_for('showCategory', category_id=item.category_id))
+    else:
+        return render_template('editItem.html', form=form, item=item)
 
 @app.route('/item/<int:item_id>/delete')
 def deleteItem(item_id):
