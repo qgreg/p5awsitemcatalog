@@ -21,6 +21,11 @@
 					Edit</button>
 				</div>
 			</form>
+            <a href = '{{url_for('showCategory', category_id=item.category_id)}}'>
+                <button class="btn btn-default">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel
+                </button>
+            </a>
 		</div>
 	</div>
 {% endblock %}
