@@ -123,6 +123,7 @@ def addItem(category_id):
         item.name = form.name.data
         item.description = form.description.data
         item.picture = form.picture.data
+        item.amazon_asin = form.amazon_asin.data
         item.dateCreated = datetime.now()
         item.users_id = login_session['users_id']
         item.category_id = category_id
@@ -147,6 +148,7 @@ def editItem(item_id):
         item.name = form.name.data
         item.description = form.description.data
         item.picture = form.picture.data
+        item.amazon_asin = form.amazon_asin.data
         session.add(item)
         session.commit()
         flash(' Item %s Successfully Edited' % item.name)
