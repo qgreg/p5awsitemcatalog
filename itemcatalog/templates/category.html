@@ -12,7 +12,7 @@
 	<div class="row banner main">
 		<div class="col-md-1"></div>
 		<div class="col-md-10 padding-none">
-			<h1>Categories</h1>
+            <h1>Untitled Project</h1>
 		</div>
         <div class="col-md-1"></div>
 	</div>
@@ -28,22 +28,17 @@
         	{% endif %}
     	{% endwith %}
 	</div>
-	
-	<div class="row padding-top padding-bottom">
-		<div class="col-md-1"></div>
-		<div class="col-md-10 padding-none">
-		</div>
-		<div class="col-md-1"></div>
-	</div>
 
     <div class="container">
     	<div class="row">
         	<div class="col-md-6">
-                <h1>Categories</h1>
+                <h1>Categories
                 <a href="{{url_for('addCategory')}}">
-                    <button class="btn btn-default" id="new-category">Add a Category
+                    <button class="btn btn-default" id="new-category">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                     </button>
                 </a>
+                </h1>
         		<div class="row">
 					{% for category in categories %}
 						<a href = "{{url_for('showCategory', category_id = category.id)}}">
@@ -58,7 +53,7 @@
 			</div>
        		<div class="col-md-6">			
 				<div class="row">
-                    <h1>Items</h1>
+                    <h1>Recent Items</h1>
 					{% for item in items %}
 						<a href = "{{url_for('showCategory', category_id = item.category_id)}}">
 						<div class="row">
