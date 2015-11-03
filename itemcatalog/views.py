@@ -27,7 +27,7 @@ session = DBSession()
 @app.route('/home/')
 def showHome():
     categories = session.query(Category).order_by(Category.name)
-    items = session.query(Item).order_by(Item.dateCreated).slice(0, 10)
+    items = session.query(Item).order_by(Item.dateCreated.desc()).slice(0, 10)
     return render_template('category.html', categories=categories, items=items)
 
 
@@ -133,6 +133,30 @@ def addItem(category_id):
         return redirect(url_for('showHome'))
     else:
         return render_template('newItem.html', form=form, category=category)
+
+
+@app.route('/category/<int:category_id>/item/add/list', methods=['GET','POST'])
+def areaAddItem(category_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    category = session.query(Category).filter_by(id=category_id).one()
+    if category.users_id != login_session['users_id']:
+        flash(' You are not authorized add items to that category.')
+        return redirect(url_for('showCategory', category_id=category_id))
+    if request.method == 'POST':
+        itemslist = request.form['itemslist'].splitlines(True)
+        for item in itemslist:
+            newItem = Item(
+                name=item, 
+                dateCreated=datetime.now(), 
+                users_id=login_session['users_id'],
+                category_id = category_id)
+            session.add(newItem)
+            session.commit() 
+            flash('New Category %s Successfully Created' % category.name)
+        return redirect(url_for('showHome'))
+    else:
+        return render_template('areanewItem.html', category=category)
 
 
 @app.route('/item/<int:item_id>/edit/', methods=['GET','POST'])

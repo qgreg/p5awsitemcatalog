@@ -22,6 +22,9 @@
 					Create</button>
 				</div>
 			</form>
+            <a href = '{{url_for('areaAddItem', category_id=category.id)}}'>
+                <button class="btn btn-default">Enter a list of new items.</button>
+            </a>
             <a href = '{{url_for('showCategory', category_id=category.id)}}'>
                 <button class="btn btn-default">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel
