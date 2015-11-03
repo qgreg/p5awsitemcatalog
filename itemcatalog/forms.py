@@ -12,4 +12,5 @@ class ItemForm(Form):
     description = StringField('Description', [validators.Length(max=250)])
     picture = StringField('Picture URL', [validators.Length(max=250)])
     amazon_asin = StringField('Amazon ASIN', [validators.Length(max=250)])
+    amazon_url = StringField('Amazon URL', [validators.Length(max=250)])
     

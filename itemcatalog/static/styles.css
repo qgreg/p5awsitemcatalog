@@ -1,8 +1,24 @@
-[class*="col-"] {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  background-color: #eee;
-  background-color: rgba(86,61,124,.15);
-  border: 1px solid #ddd;
-  border: 1px solid rgba(86,61,124,.2);
+* {
+    font-family: 'Oxygen', Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+}
+
+h1 {
+    font-family: 'Oxygen', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 30px;
+    color: #51453B;
+    line-height: 45px;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 24px;
+    color: #42C3C9;
+    line-height: 36px;
+}
+
+h3 {
+    font-size: 18px;
+    color: #4A4A4A;
+    line-height: 27px;
 }

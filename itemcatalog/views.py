@@ -14,6 +14,7 @@ from flask import session as login_session
 import random, string
 
 from forms import CategoryForm, ItemForm
+import re
 
 app.register_blueprint(login_blueprint)
 
@@ -56,10 +57,11 @@ def addCategory():
     else:
         return render_template('newCategory.html', form=form)
 
+
 @app.route('/category/<int:category_id>/')
 def showCategory(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(category_id=category.id)
+    items = session.query(Item).filter_by(category_id=category.id).order_by(Item.name)
     if 'users_id' in login_session and category.users_id == login_session['users_id']:
         editCategory = True
     else:
@@ -172,7 +174,13 @@ def editItem(item_id):
         item.name = form.name.data
         item.description = form.description.data
         item.picture = form.picture.data
-        item.amazon_asin = form.amazon_asin.data
+        if form.amazon_url.data is not None:
+            asin = re.search("[A-Z0-9]{10}", form.amazon_url.data)
+            if asin:
+                print asin
+                item.amazon_asin = asin.group(0)
+            else:
+                item.amazon_asin = form.amazon_asin.data
         session.add(item)
         session.commit()
         flash(' Item %s Successfully Edited' % item.name)
