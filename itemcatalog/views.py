@@ -16,6 +16,11 @@ import random, string
 from forms import CategoryForm, ItemForm
 import re
 
+from flask_wtf import Form
+from flask_wtf.csrf import CsrfProtect
+
+CsrfProtect(app)
+
 app.register_blueprint(login_blueprint)
 
 engine = create_engine('postgres://ryztryqknsyzog:fVxpW9KcpmHAFAqMo1mBcidICf@ec2-107-21-219-109.compute-1.amazonaws.com:5432/d4kcqmr928j0p2')  # noqa
@@ -43,7 +48,7 @@ def addCategory():
     if 'username' not in login_session:
         return redirect('/login')
     form = CategoryForm()
-    if request.method == 'POST': # and form.validate()
+    if form.validate_on_submit():
         category = Category()
         category.name = form.name.data
         category.description = form.description.data
@@ -79,7 +84,7 @@ def editCategory(category_id):
         flash(' You are not authorized to make that edit.')
         return redirect(url_for('showCategory', category_id=category_id))
     form = CategoryForm(obj=category)
-    if request.method == 'POST':  # and form.validate()
+    if form.validate_on_submit():
         category.name = form.name.data
         category.description = form.description.data
         category.picture = form.picture.data
@@ -120,15 +125,20 @@ def addItem(category_id):
         flash(' You are not authorized add items to that category.')
         return redirect(url_for('showCategory', category_id=category_id))
     form = ItemForm()
-    if request.method == 'POST': # and form.validate()
+    if form.validate_on_submit():
         item = Item()
         item.name = form.name.data
         item.description = form.description.data
         item.picture = form.picture.data
-        item.amazon_asin = form.amazon_asin.data
         item.dateCreated = datetime.now()
         item.users_id = login_session['users_id']
         item.category_id = category_id
+        if form.amazon_url.data is not None:
+            asin = re.search("[A-Z0-9]{10}", form.amazon_url.data)
+            if asin:
+                item.amazon_asin = asin.group(0)
+            else:
+                item.amazon_asin = form.amazon_asin.data
         session.add(item)
         session.commit() 
         flash('New Category %s Successfully Created' % category.name)
@@ -170,14 +180,13 @@ def editItem(item_id):
         flash(' You are not authorized to make that edit.')
         return redirect(url_for('showCategory', category_id=item.category_id))
     form = ItemForm(obj=item)
-    if request.method == 'POST':  # and form.validate()
+    if form.validate_on_submit():
         item.name = form.name.data
         item.description = form.description.data
         item.picture = form.picture.data
         if form.amazon_url.data is not None:
             asin = re.search("[A-Z0-9]{10}", form.amazon_url.data)
             if asin:
-                print asin
                 item.amazon_asin = asin.group(0)
             else:
                 item.amazon_asin = form.amazon_asin.data
@@ -208,3 +217,24 @@ def deleteItem(item_id):
         return redirect(url_for('showCategory', category_id=category.id))
     else:
         return render_template('deleteItem.html',item=item)
+
+
+@app.route('/category/JSON')
+def categoriesJSON():
+    categories = session.query(Category).all()
+    return jsonify(CAtegory=[i.serialize for i in categories])
+
+
+@app.route('/category/<int:category_id>/JSON')
+def categoryJSON(category_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    items = session.query(Item).filter_by(
+        category_id=category.id).all()
+    return jsonify(Item=[i.serialize for i in items])
+
+
+@app.route('/category/<int:category_id>/item/<int:item_id>/JSON')
+def restaurantMenuItemJSON(category_id, item_id):
+    item = session.query(Item).filter_by(
+        id=item_id).one()
+    return jsonify(Item=[item.serialize])

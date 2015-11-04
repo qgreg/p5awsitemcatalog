@@ -29,6 +29,16 @@ class Category(Base):
     users = relationship(Users)
     users_id = Column(Integer, ForeignKey('users.id'))
 
+    @property
+    def serialize(self):
+        #Returns object data in easily serializable format
+        return {
+            'name' : self.name,
+            'description' : self.description,
+            'dateCreated' : str(self.dateCreated),
+            'id' : self.id,
+            'picture' : self.picture,
+        }
 
 
 class Item(Base):
@@ -44,6 +54,19 @@ class Item(Base):
     users_id = Column(Integer, ForeignKey('users.id'))
     category = relationship(Category)
     users = relationship(Users)
+
+    @property
+    def serialize(self):
+        #Returns object data in easily serializable format
+        return {
+            'name' : self.name,
+            'description' : self.description,
+            'dateCreated' : str(self.dateCreated),
+            'id' : self.id,
+            'amazon_asin' : self.amazon_asin,
+            'picture' : self.picture,
+            'category_id' : self.category_id,
+        }
 
 
 engine = create_engine('postgres://ryztryqknsyzog:fVxpW9KcpmHAFAqMo1mBcidICf@ec2-107-21-219-109.compute-1.amazonaws.com:5432/d4kcqmr928j0p2')

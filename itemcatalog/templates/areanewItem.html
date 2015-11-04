@@ -11,7 +11,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-6 col-md-offset-1 padding-top">
-			<form method="POST" action="{{ url_for('areaAddItem', category_id=category.id) }}">
+			<form method="POST" action="{{ url_for('areaAddItem', category_id=category.id) }}">{{ form.csrf_token }}
     				<div class="form-group">
                         <label for="namer">Enter list of items:</label>
                         <textarea type="text" class="form-control" id="namer" rows=10 name='itemslist'></textarea>

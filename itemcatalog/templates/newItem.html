@@ -11,12 +11,15 @@
 	</div>
 	<div class="row">
 		<div class="col-md-6 col-md-offset-1 padding-top">
+			{% from "_formhelpers.html" import render_field %}
 			<form method="POST" action="{{ url_for('addItem', category_id=category.id) }}">
+				{{ form.csrf_token }}
     			<div class="form-group">
-    				<div>{{ form.name.label }}: {{ form.name(class="form-control", maxlength="100") }}</div>
-    				<div>{{ form.description.label }}: {{ form.description(class="form-control", maxlength="100") }}</div>
-                    <div>{{ form.picture.label }}: {{ form.picture(class="form-control", maxlength="100") }}</div>
-                    <div>{{ form.amazon_asin.label }}: {{ form.amazon_asin(class="form-control", maxlength="100") }}</div>
+                    {{ render_field(form.name, maxlength="100") }}
+    				{{ render_field(form.description, maxlength="100") }}
+    				{{ render_field(form.picture, maxlength="100") }}
+    				{{ render_field(form.amazon_asin, maxlength="100") }}
+    				{{ render_field(form.amazon_url, maxlength="100") }}
     				<div class="padding-bottom"></div>
     				<button type="submit" class="btn btn-default" id="submit" type="submit">
 					Create</button>
