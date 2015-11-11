@@ -58,6 +58,7 @@ def addCategory():
         session.add(category)
         session.commit() 
         flash('New Category %s Successfully Created' % category.name)
+        app.logger.info('New Category %s Created on %s' % (category.name, str(category.dateCreated)))
         return redirect(url_for('showHome'))
     else:
         return render_template('newCategory.html', form=form)
@@ -113,7 +114,7 @@ def deleteCategory(category_id):
         session.commit()
         return redirect(url_for('showHome'))
     else:
-        return render_template('deleteCategory.html',category=category)
+        return render_template('deleteCategory.html', category=category)
 
 
 @app.route('/category/<int:category_id>/item/add/', methods=['GET','POST'])
@@ -141,7 +142,9 @@ def addItem(category_id):
                 item.amazon_asin = form.amazon_asin.data
         session.add(item)
         session.commit() 
-        flash('New Category %s Successfully Created' % category.name)
+        flash('New Item %s Successfully Created' % item.name)
+        app.logger.info('New Category %s Created on %s' % (item.name, 
+            str(item.dateCreated)))
         return redirect(url_for('showHome'))
     else:
         return render_template('newItem.html', form=form, category=category)
