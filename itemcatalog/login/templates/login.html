@@ -4,7 +4,7 @@
 	</script>
 	<script src="//apis.google.com/js/platform.js?onload=start">
 	</script>
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <div id="signinButton">
 	<span class="g-signin"
 		data-scope="openid email"
@@ -23,7 +23,15 @@
 function signInCallback(authResult) {
 	if (authResult['code']) {
 		$('#signinButton').attr('style', 'display: none');
-		$.ajax({
+		var csrftoken = $('meta[name=csrf-token]').attr('content')
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken)
+        }
+      }
+    })
+    $.ajax({
 			type: 'POST',
 			url: '/gconnect?state={{STATE}}',
 			processData: false,
@@ -33,7 +41,7 @@ function signInCallback(authResult) {
 				if (result) {
 					$('#result').html('Login successful!</br>' + result + '</br>Redirecting...')
 					setTimeout(function() {
-						window.location.href = "/category";
+						window.location.href = "/home";
 					}, 4000);
 				} else if (authResult['error']) {
 					console.log('There was an error: ' + authResult['error']);
@@ -74,7 +82,15 @@ function signInCallback(authResult) {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', function(response) {
       console.log('Successful login for: ' + response.name);
-     $.ajax({
+    var csrftoken = $('meta[name=csrf-token]').attr('content')
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken)
+        }
+      }
+    })
+    $.ajax({
       type: 'POST',
       url: '/fbconnect?state={{STATE}}',
       processData: false,
@@ -100,8 +116,7 @@ function signInCallback(authResult) {
 
 
 <button class="btn btn-default" id="new-menu-item">
-	<span class="glyphicon glyphicon-glass" aria-hidden="true">
-	</span>Login with Facebook
+	Login with Facebook
 <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
 </fb:login-button>
 </button>
