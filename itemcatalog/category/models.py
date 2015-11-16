@@ -15,7 +15,7 @@ class Users(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(250))
+    email = db.Column(db.String(250), unique=True)
     picture = db.Column(db.String(250))
     admin = db.Column(db.Boolean)
 
@@ -31,7 +31,7 @@ class Users(db.Model):
 
 
 class Category(db.Model):
-    name = db.Column(db.String(250), nullable=False)
+    name = db.Column(db.String(250), nullable=False, unique=True)
     description = db.Column(db.String(250))
     picture = db.Column(db.String(250))
     dateCreated = db.Column(db.Date)
