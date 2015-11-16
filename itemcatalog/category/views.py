@@ -46,10 +46,10 @@ def addCategory():
         return render_template('newCategory.html', form=form)
 
 
-@category.route('/category/<int:category_id>/')
+@category.route('/category/id/<int:category_id>/')
 def showIdCategory(category_id):
     category = Category.query.filter_by(id=category_id).first_or_404()
-    showCategory(category.name)
+    return redirect(url_for('category.showCategory', name=category.name))
 
 
 @category.route('/category/<name>/')
@@ -97,9 +97,9 @@ def deleteCategory(name):
         flash('User does not have permission to delete %s.' % category.name)
         return redirect(url_for('category.showCategory', name=category.name))
     if request.method == 'POST':
-        db.delete(category)
+        db.session.delete(category)
         flash('%s Successfully Deleted' % category.name)
-        db.commit()
+        db.session.commit()
         return redirect(url_for('category.showHome'))
     else:
         return render_template('deleteCategory.html', category=category)
@@ -116,7 +116,7 @@ def addItem(name):
     form = ItemForm()
     if form.validate_on_submit():
         item = Item(form.name.data, form.description.data,form.amazon_asin.data,
-            form.picture.data, category_id, login_session['users_id'])
+            form.picture.data, category.id, login_session['users_id'])
         if form.amazon_url.data is not None:
             asin = re.search("[A-Z0-9]{10}", form.amazon_url.data)
             if asin:
@@ -174,7 +174,7 @@ def editItem(name):
         db.session.add(item)
         db.session.commit()
         flash(' Item %s Successfully Edited' % item.name)
-        category = Category.query.filter_by(id=item.category_id)
+        category = Category.query.filter_by(id=item.category_id).first_or_404()
         return redirect(url_for('category.showCategory', name=category.name))
     else:
         return render_template('editItem.html', form=form, item=item)
@@ -194,7 +194,7 @@ def deleteItem(name):
         return redirect(url_for('category.showCategory', name=category.name))
     if request.method == 'POST':
         db.session.delete(item)
-        category = Category.query.filter_by(id=item.category_id)
+        category = Category.query.filter_by(id=item.category_id).first_or_404()
         flash('%s Successfully Deleted' % item.name)
         db.session.commit()
         return redirect(url_for('category.showCategory', name=category.name))
