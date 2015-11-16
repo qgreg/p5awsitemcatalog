@@ -11,7 +11,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-6 col-md-offset-1 padding-top">
-			<form method="POST" action="{{ url_for('areaAddItem', category_id=category.id) }}">{{ form.csrf_token }}
+			<form method="POST" action="{{ url_for('category.areaAddItem', name=category.name) }}">{{ form.csrf_token }}
     				<div class="form-group">
                         <label for="namer">Enter list of items:</label>
                         <textarea type="text" class="form-control" id="namer" rows=10 name='itemslist'></textarea>
@@ -20,7 +20,7 @@
     				<button type="submit" class="btn btn-default" id="submit" type="submit">
 					Create</button>
 			</form>
-            <a href = '{{url_for('showCategory', category_id=category.id)}}'>
+            <a href = '{{url_for('category.showCategory', name=category.name)}}'>
                 <button class="btn btn-default">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel
                 </button>

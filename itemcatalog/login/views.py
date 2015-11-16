@@ -13,15 +13,8 @@ import json
 from flask import make_response
 import requests
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from itemcatalog.models import Base, Users
+from itemcatalog.category.models import db, Users
 
-
-engine = create_engine('postgres://ryztryqknsyzog:fVxpW9KcpmHAFAqMo1mBcidICf@ec2-107-21-219-109.compute-1.amazonaws.com:5432/d4kcqmr928j0p2')  # noqa
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
 
 login_blueprint = Blueprint(
     'login', __name__,
@@ -269,22 +262,22 @@ def gdisconnect():
 
 
 def createUsers(login_session):
-    newUser = Users(name=login_session['username'], email=login_session['email'], 
-      picture=login_session['picture'])
-    session.add(newUser)
-    session.commit()
+    newUser = Users(login_session['username'], login_session['email'], 
+      login_session['picture'])
+    db.session.add(newUser)
+    db.session.commit()
     users = session.query(Users).filter_by(email=login_session['email']).one()
     return users.id
 
 
 def getUsersInfo(users_id):
-    users = session.query(Users).filter_by(id=users_id).one()
+    users = Users.query.filter_by(id=users_id).first_or_404()
     return users
 
 
 def getUsersID(email):
     try:
-        users = session.query(Users).filter_by(email=email).one()
+        users = Users.query.filter_by(email=email).first_or_404()
         return users.id
     except:
         return None

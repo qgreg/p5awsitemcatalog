@@ -1,5 +1,3 @@
-from itemcatalog import app
-
-app.secret_key = 'super_secret_key'
-app.debug = True
+from itemcatalog.createapp import create_app
+app = create_app('config.py')
 app.run(host='0.0.0.0', port=5000)

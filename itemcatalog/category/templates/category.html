@@ -33,7 +33,7 @@
     	<div class="row">
         	<div class="col-md-6">
                 <h1>Categories
-                <a href="{{url_for('addCategory')}}">
+                <a href="{{url_for('category.addCategory')}}">
                     <button class="btn btn-default" id="new-category">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                     </button>
@@ -41,7 +41,7 @@
                 </h1>
         		<div class="row">
 					{% for category in categories %}
-						<a href = "{{url_for('showCategory', category_id = category.id)}}">
+						<a href = "{{url_for('category.showCategory', name=category.name)}}">
 						<div class="row">
 							<div class="col-md-10 category-list">
 								<h3>{{category.name}}</h3>
@@ -55,7 +55,7 @@
 				<div class="row">
                     <h1>Recent Items</h1>
 					{% for item in items %}
-						<a href = "{{url_for('showCategory', category_id = item.category_id)}}">
+						<a href = "{{url_for('category.showIdCategory', category_id=item.category_id)}}">
 						<div class="row">
 							<div class="col-md-10 item-list">
 								<h3>{{item.name}}</h3>
