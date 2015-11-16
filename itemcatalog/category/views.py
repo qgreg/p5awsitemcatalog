@@ -1,6 +1,8 @@
 
 from flask import Flask, render_template, request, redirect, url_for, flash, \
-	jsonify, Blueprint
+	jsonify, Blueprint, current_app
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask import session as login_session 
 
 from models import db, Category, Item, Users
 
@@ -17,8 +19,7 @@ category = Blueprint(
 @category.route('/home/')
 def showHome():
     categories = Category.query.order_by(Category.name)
-    items = Item.query.order_by(Item.dateCreated.desc()).paginate(
-        1, per_page=10, error_out=False)
+    items = Item.query.order_by(Item.dateCreated.desc()).slice(0, 10)
     return render_template('category.html', categories=categories, items=items)
 
 
@@ -36,12 +37,11 @@ def addCategory():
     if form.validate_on_submit():
         category = Category(form.name.data, form.description.data, 
             form.picture.data, login_session['users_id'])
-        db.add(category)
-        db.commit() 
-        print engine
+        db.session.add(category)
+        db.session.commit()
         flash('New Category %s Successfully Created' % category.name)
-        app.logger.info('New Category %s Created on %s' % (category.name, str(category.dateCreated)))
-        return redirect(url_for('showHome'))
+        current_app.logger.info('New Category %s Created on %s' % (category.name, str(category.dateCreated)))
+        return redirect(url_for('category.showHome'))
     else:
         return render_template('newCategory.html', form=form)
 
@@ -71,7 +71,7 @@ def editCategory(name):
     category = Category.query.filter_by(name=name).first_or_404()
     if category.users_id != login_session['users_id']:
         flash(' You are not authorized to make that edit.')
-        return redirect(url_for('showCategory', category_id=category_id))
+        return redirect(url_for('category.showCategory', category_id=category_id))
     form = CategoryForm(obj=category)
     if form.validate_on_submit():
         category.name = form.name.data
@@ -80,7 +80,7 @@ def editCategory(name):
         db.session.add(category)
         db.session.commit()
         flash(' Category %s Successfully Edited' % category.name)
-        return redirect(url_for('showCategory', name=category.name))
+        return redirect(url_for('category.showCategory', name=category.name))
     else:
         return render_template('editCategory.html', form=form, category=category)
 
@@ -92,15 +92,15 @@ def deleteCategory(name):
     category = Category.query.filter_by(name=name).first_or_404()
     if category.users_id != login_session['users_id']:
         flash(' You are not authorized to delete this category.')
-        return redirect(url_for('showCategory', category_id=category_id))
+        return redirect(url_for('category.showCategory', category_id=category_id))
     if login_session['users_id'] != category.users_id:
         flash('User does not have permission to delete %s.' % category.name)
-        return redirect(url_for('showCategory', name=category.name))
+        return redirect(url_for('category.showCategory', name=category.name))
     if request.method == 'POST':
         db.delete(category)
         flash('%s Successfully Deleted' % category.name)
         db.commit()
-        return redirect(url_for('showHome'))
+        return redirect(url_for('category.showHome'))
     else:
         return render_template('deleteCategory.html', category=category)
 
@@ -112,7 +112,7 @@ def addItem(name):
     category = Category.query.filter_by(name=name).first_or_404()
     if category.users_id != login_session['users_id']:
         flash(' You are not authorized add items to that category.')
-        return redirect(url_for('showCategory', name=name))
+        return redirect(url_for('category.showCategory', name=name))
     form = ItemForm()
     if form.validate_on_submit():
         item = Item(form.name.data, form.description.data,form.amazon_asin.data,
@@ -121,12 +121,12 @@ def addItem(name):
             asin = re.search("[A-Z0-9]{10}", form.amazon_url.data)
             if asin:
                 item.amazon_asin = asin.group(0)
-        db.add(item)
-        db.commit() 
+        db.session.add(item)
+        db.session.commit() 
         flash('New Item %s Successfully Created' % item.name)
-        app.logger.info('New Category %s Created on %s' % (item.name, 
+        current_app.logger.info('New Category %s Created on %s' % (item.name, 
             str(item.dateCreated)))
-        return redirect(url_for('showHome'))
+        return redirect(url_for('category.showHome'))
     else:
         return render_template('newItem.html', form=form, category=category)
 
@@ -138,7 +138,7 @@ def areaAddItem(name):
     category = Category.query.filter_by(id=category_id).first_or_404()
     if category.users_id != login_session['users_id']:
         flash(' You are not authorized add items to that category.')
-        return redirect(url_for('showCategory', category_id=category_id))
+        return redirect(url_for('category.showCategory', category_id=category_id))
     if request.method == 'POST':
         itemslist = request.form['itemslist'].splitlines(True)
         for item in itemslist:
@@ -146,7 +146,7 @@ def areaAddItem(name):
             db.session.add(newItem)
             db.session.commit() 
             flash('New Category %s Successfully Created' % category.name)
-        return redirect(url_for('showHome'))
+        return redirect(url_for('category.showHome'))
     else:
         return render_template('areanewItem.html', category=category)
 
@@ -159,7 +159,7 @@ def editItem(name):
     if item.users_id != login_session['users_id']:
         flash(' You are not authorized to make that edit.')
         category = session.query(Category).filter_by(id=item.category_id)
-        return redirect(url_for('showCategory', name=category.name))
+        return redirect(url_for('category.showCategory', name=category.name))
     form = ItemForm(obj=item)
     if form.validate_on_submit():
         item.name = form.name.data
@@ -175,7 +175,7 @@ def editItem(name):
         db.session.commit()
         flash(' Item %s Successfully Edited' % item.name)
         category = Category.query.filter_by(id=item.category_id)
-        return redirect(url_for('showCategory', name=category.name))
+        return redirect(url_for('category.showCategory', name=category.name))
     else:
         return render_template('editItem.html', form=form, item=item)
 
@@ -187,17 +187,17 @@ def deleteItem(name):
     item = Item.query.filter_by(name=name).first_or_404()
     if item.users_id != login_session['users_id']:
         flash(' You are not authorized to delete that item.')
-        return redirect(url_for('showCategory', category_id=item.category_id))
+        return redirect(url_for('category.showCategory', category_id=item.category_id))
     category = Category.query.filter_by(id=item.category_id).first_or_404()
     if login_session['users_id'] != item.users_id:
         flash('User does not have permission to delete %s.' % category.name)
-        return redirect(url_for('showCategory', name=category.name))
+        return redirect(url_for('category.showCategory', name=category.name))
     if request.method == 'POST':
         db.session.delete(item)
         category = Category.query.filter_by(id=item.category_id)
         flash('%s Successfully Deleted' % item.name)
         db.session.commit()
-        return redirect(url_for('showCategory', name=category.name))
+        return redirect(url_for('category.showCategory', name=category.name))
     else:
         return render_template('deleteItem.html', item=item)
 
