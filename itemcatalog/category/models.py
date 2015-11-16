@@ -36,8 +36,7 @@ class Category(db.Model):
     picture = db.Column(db.String(250))
     dateCreated = db.Column(db.Date)
     id = db.Column(db.Integer, primary_key=True)
-    users = db.relationship('Users',
-        backref=db.backref('Category', lazy='dynamic'))
+    users = db.relationship('Users')
     users_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __init__(self, name, description, picture, users_id, dateCreated=None):
@@ -72,10 +71,8 @@ class Item(db.Model):
     picture = db.Column(db.String(250))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     users_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    category = db.relationship('Category',
-        backref=db.backref('Item', lazy='dynamic'))
-    users = db.relationship('Users',
-        backref=db.backref('Item', lazy='dynamic'))
+    category = db.relationship('Category')
+    users = db.relationship('Users')
 
     def __init__(self, name, description, amazon_asin,
             picture, category_id, users_id, dateCreated=None):
