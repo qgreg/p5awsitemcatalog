@@ -15,6 +15,7 @@ category = Blueprint(
     'category', __name__,
     template_folder="templates")
 
+
 @category.route('/')
 @category.route('/home/')
 def showHome():
@@ -56,10 +57,12 @@ def showIdCategory(category_id):
 def showCategory(name):
     category = Category.query.filter_by(name=name).first_or_404()
     items = Item.query.filter_by(category_id=category.id).order_by(Item.name)
-    if 'users_id' in login_session and category.users_id == login_session['users_id']:
-        editCategory = True
-    else:
-        editCategory = False
+    if 'users_id' in login_session:
+        user = Users.query.filter_by(id=login_session['users_id'])
+        if (category.users_id == login_session['users_id' or user.admin:
+            editCategory = True
+        else:
+            editCategory = False
     return render_template('showCategory.html', category=category, 
         items=items, editCategory=editCategory)
 
@@ -68,10 +71,12 @@ def showCategory(name):
 def editCategory(name):
     if 'username' not in login_session:
         return redirect('/login')
-    category = Category.query.filter_by(name=name).first_or_404()
-    if category.users_id != login_session['users_id']:
-        flash(' You are not authorized to make that edit.')
-        return redirect(url_for('category.showCategory', category_id=category_id))
+    else:
+        category = Category.query.filter_by(name=name).first_or_404()
+        user = Users.query.filter_by(id=login_session['users_id'])
+        if (category.users_id != login_session['users_id' and not user.admin:
+            flash(' You are not authorized to make that edit.')
+            return redirect(url_for('category.showCategory', category_id=category_id))
     form = CategoryForm(obj=category)
     if form.validate_on_submit():
         category.name = form.name.data
@@ -89,13 +94,12 @@ def editCategory(name):
 def deleteCategory(name):
     if 'username' not in login_session:
         return redirect('/login')
-    category = Category.query.filter_by(name=name).first_or_404()
-    if category.users_id != login_session['users_id']:
-        flash(' You are not authorized to delete this category.')
-        return redirect(url_for('category.showCategory', category_id=category_id))
-    if login_session['users_id'] != category.users_id:
-        flash('User does not have permission to delete %s.' % category.name)
-        return redirect(url_for('category.showCategory', name=category.name))
+    else:
+        category = Category.query.filter_by(name=name).first_or_404()
+        user = Users.query.filter_by(id=login_session['users_id'])
+        if (category.users_id != login_session['users_id' and not user.admin:
+            flash(' You are not authorized to delete this category.')
+            return redirect(url_for('category.showCategory', category_id=category_id))
     if request.method == 'POST':
         db.session.delete(category)
         flash('%s Successfully Deleted' % category.name)
@@ -109,10 +113,12 @@ def deleteCategory(name):
 def addItem(name):
     if 'username' not in login_session:
         return redirect('/login')
-    category = Category.query.filter_by(name=name).first_or_404()
-    if category.users_id != login_session['users_id']:
-        flash(' You are not authorized add items to that category.')
-        return redirect(url_for('category.showCategory', name=name))
+    else:
+        category = Category.query.filter_by(name=name).first_or_404()
+        user = Users.query.filter_by(id=login_session['users_id'])
+        if (category.users_id != login_session['users_id' and not user.admin:
+            flash(' You are not authorized add items to that category.')
+            return redirect(url_for('category.showCategory', name=name))
     form = ItemForm()
     if form.validate_on_submit():
         item = Item(form.name.data, form.description.data,form.amazon_asin.data,
@@ -135,10 +141,12 @@ def addItem(name):
 def areaAddItem(name):
     if 'username' not in login_session:
         return redirect('/login')
-    category = Category.query.filter_by(id=category_id).first_or_404()
-    if category.users_id != login_session['users_id']:
-        flash(' You are not authorized add items to that category.')
-        return redirect(url_for('category.showCategory', category_id=category_id))
+    else:
+        category = Category.query.filter_by(name=name).first_or_404()
+        user = Users.query.filter_by(id=login_session['users_id'])
+        if (category.users_id != login_session['users_id' and not user.admin:
+            flash(' You are not authorized add items to that category.')
+            return redirect(url_for('category.showCategory', category_id=category_id))
     if request.method == 'POST':
         itemslist = request.form['itemslist'].splitlines(True)
         for item in itemslist:
@@ -155,11 +163,13 @@ def areaAddItem(name):
 def editItem(name):
     if 'username' not in login_session:
         return redirect('/login')    
-    item = Item.query.filter_by(name=name).first_or_404()
-    if item.users_id != login_session['users_id']:
-        flash(' You are not authorized to make that edit.')
-        category = session.query(Category).filter_by(id=item.category_id)
-        return redirect(url_for('category.showCategory', name=category.name))
+    else:
+        item = Item.query.filter_by(name=name).first_or_404()
+        user = Users.query.filter_by(id=login_session['users_id'])
+        if (item.users_id != login_session['users_id' and not user.admin:
+            flash(' You are not authorized to make that edit.')
+            category = session.query(Category).filter_by(id=item.category_id)
+            return redirect(url_for('category.showCategory', name=category.name))
     form = ItemForm(obj=item)
     if form.validate_on_submit():
         item.name = form.name.data
@@ -184,14 +194,13 @@ def editItem(name):
 def deleteItem(name):
     if 'username' not in login_session:
         return redirect('/login')
-    item = Item.query.filter_by(name=name).first_or_404()
-    if item.users_id != login_session['users_id']:
-        flash(' You are not authorized to delete that item.')
-        return redirect(url_for('category.showCategory', category_id=item.category_id))
-    category = Category.query.filter_by(id=item.category_id).first_or_404()
-    if login_session['users_id'] != item.users_id:
-        flash('User does not have permission to delete %s.' % category.name)
-        return redirect(url_for('category.showCategory', name=category.name))
+    else:
+        item = Item.query.filter_by(name=name).first_or_404()
+        user = Users.query.filter_by(id=login_session['users_id'])
+        if (item.users_id != login_session['users_id' and not user.admin:
+            category = Category.query.filter_by(id=item.category_id).first_or_404()
+            flash('User does not have permission to delete %s.' % category.name)
+            return redirect(url_for('category.showCategory', name=category.name))
     if request.method == 'POST':
         db.session.delete(item)
         category = Category.query.filter_by(id=item.category_id).first_or_404()
