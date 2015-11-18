@@ -9,6 +9,7 @@ def create_app(config_filename):
 
     from itemcatalog.category.models import db
     db.init_app(app)
+    db.create_all()
 
     from itemcatalog.login.views import login_blueprint
     app.register_blueprint(login_blueprint)
