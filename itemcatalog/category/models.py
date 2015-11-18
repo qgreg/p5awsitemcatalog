@@ -19,8 +19,7 @@ class Users(db.Model):
     picture = db.Column(db.String(250))
     admin = db.Column(db.Boolean)
 
-    def __init__(self, id, name, email, picture, admin):
-        self.id = id
+    def __init__(self, name, email, picture, admin):
         self.name = name
         self.email = email
         self.picture = picture
