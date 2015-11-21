@@ -17,5 +17,6 @@ def create_app(config_filename):
     app.register_blueprint(category)
 
     csrf.init_app(app)
+    csrf.exempt(login_blueprint)
 
     return app
