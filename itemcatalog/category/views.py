@@ -23,9 +23,38 @@ def showHome():
 
 
 @category.route('/user/<int:users_id>')
-def showUser(user_id):
-    # Should user profile be invisible? Perhaps. Then no number
-    return 'Users will see profiles here.'
+def showUser(users_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    else:
+        adminuser = Users.query.filter_by(id=login_session['users_id']).first_or_404()
+        showuser = Users.query.filter_by(id=users_id).first_or_404()
+        if adminuser.admin:
+            editUser = True
+            userslist = Users.query.all()
+        else:
+            editUser = False
+            userslist = None
+        categories = Category.query.filter_by(users_id=showuser.id).order_by(category.name)
+        return render_template('user.html', user=showuser, categories=categories, editUser=editUser, userslist=userslist)
+
+
+@category.route('/user/<int:users_id>/change', methods=['POST'])
+def changeAdmin(users_id):
+    user = Users.query.filter_by(id=users_id).first_or_404()
+    if not user.admin:
+        flash(' You are not authorized to set admin role.')
+        return redirect(url_for('category.showHome'))
+    if request.method == 'POST':
+        user.admin = request.form['admin']
+        db.session.add(user)
+        db.session.commit()
+        if user.admin:
+            flash('%s role changed to admin.', user.name)
+        else:
+            flash('%s admin role revoked.', user.name)
+        db.session.commit()
+        return redirect(url_for('category.showHome'))
 
 
 @category.route('/category/add', methods=['GET','POST'])
@@ -55,14 +84,13 @@ def showIdCategory(category_id):
 def showCategory(name):
     category = Category.query.filter_by(name=name).first_or_404()
     items = Item.query.filter_by(category_id=category.id).order_by(Item.name)
+    editCategory = False
     if 'users_id' in login_session:
         user = Users.query.filter_by(id=login_session['users_id'])
         if category.users_id == login_session['users_id'] or user.admin:
             editCategory = True
-        else:
-            editCategory = False
     return render_template('showCategory.html', category=category, 
-        items=items, editCategory=editCategory)
+            items=items, editCategory=editCategory)
 
 
 @category.route('/category/<name>/edit/', methods=['GET','POST'])
@@ -155,6 +183,14 @@ def areaAddItem(name):
         return redirect(url_for('category.showHome'))
     else:
         return render_template('areanewItem.html', category=category)
+
+@category.context_processor
+def provideUser():
+    if 'username' in login_session:
+        loginuser = Users.query.filter_by(id=login_session['users_id']).first_or_404()
+        return {'loginuser': loginuser,}
+    else:
+        return {'loggedin': False,}
 
 
 @category.route('/item/<name>/edit/', methods=['GET','POST'])
