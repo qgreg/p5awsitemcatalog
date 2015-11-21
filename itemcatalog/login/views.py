@@ -15,7 +15,6 @@ import requests
 
 from itemcatalog.category.models import db, Users
 
-
 login_blueprint = Blueprint(
     'login', __name__,
     template_folder="templates")
@@ -23,6 +22,7 @@ login_blueprint = Blueprint(
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog"
+
 
 # Create a state token to prevent request forgery
 # Store it in login_session for later validation
@@ -170,7 +170,7 @@ def gconnect():
         return response
 
     # Store the access token in the session for later use.
-    login_session['credentials'] = credentials
+    login_session['credentials'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
     # Get user info
@@ -225,10 +225,10 @@ def disconnect():
         del login_session['provider']
 
         flash("You have successfully logged out.")
-        return redirect(url_for('showHome'))
+        return redirect(url_for('category.showHome'))
     else:
         flash("You are not currently logged in.")
-        return redirect(url_for('showHome'))
+        return redirect(url_for('category.showHome'))
 
 
 @login_blueprint.route('/gdisconnect')
@@ -241,7 +241,7 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     # Revoke google login
-    access_token = credentials.access_token
+    access_token = credentials #.access_token
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
