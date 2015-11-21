@@ -26,7 +26,7 @@ class Users(db.Model):
         self.admin = admin
 
     def __repr__(self):
-        return '<Post %r>' % self.name
+        return '<Users %r>' % self.name
 
 
 class Category(db.Model):
@@ -47,7 +47,7 @@ class Category(db.Model):
             self.dateCreated = datetime.now()
         
     def __repr__(self):
-        return '<Post %r>' % self.name
+        return '<Category %r>' % self.name
 
     @property
     def serialize(self):
@@ -85,7 +85,7 @@ class Item(db.Model):
             self.dateCreated = datetime.now()
 
     def __repr__(self):
-        return '<Post %r>' % self.name
+        return '<Item %r>' % self.name
 
     @property
     def serialize(self):
