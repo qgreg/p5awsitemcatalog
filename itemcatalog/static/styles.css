@@ -22,3 +22,71 @@ h3 {
     color: #4A4A4A;
     line-height: 27px;
 }
+
+#wrap{
+ background:#FFD79A;
+}
+
+/*.category-columns .col {
+  padding-right:15px;
+  padding-left:15px;
+}*/
+
+.category-card {
+  position: relative;  
+  text-align: center;
+  background-color: #fff;
+}
+
+.category-card {
+    margin: 15px;
+}
+
+.category-boxtop {
+  height: 70px;
+  background-color: #FF9900
+}
+ 
+.category-card .category-picture {
+  position: relative;
+  top: -40px;
+  margin-bottom: -40px;
+}
+ 
+.category-card .category-picture img {
+  width: 80px;
+  height: 80px;
+  max-width: 80px;
+  max-height: 80px;
+}
+ 
+.category-card .info {
+  padding: 4px 8px 10px;
+}
+ 
+.category-card a {
+  margin-bottom: 4px;
+  font-size: 27px;
+  line-height: 1;
+  color: #262626;
+  vertical-align: middle;
+}
+ 
+.catagory-card  .info.descriptions {
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 20px;
+  color: #737373;
+  text-overflow: ellipsis;
+  margin-bottom: 400px
+}
+ 
+.category-card .bottom {
+  padding: 0 20px;
+  margin-bottom: 17px;
+}
+
+.category-card {
+  padding-top: 0;
+  overflow: hidden;
+}

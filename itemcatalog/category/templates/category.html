@@ -1,21 +1,6 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-	<div class="row top-menu">
-		<div class="col-md-10"></div>
-		<div class="col-md-2 text-right">
-					</div>
-	</div>
-	<div class="row divider blue">
-		<div class="col-md-12"></div>
-	</div>
-	<div class="row banner main">
-		<div class="col-md-1"></div>
-		<div class="col-md-10 padding-none">
-            <h1>Untitled Project</h1>
-		</div>
-        <div class="col-md-1"></div>
-	</div>
 
 	<div class = 'flash'>
 		{% with messages = get_flashed_messages() %}
@@ -29,9 +14,9 @@
     	{% endwith %}
 	</div>
 
-    <div class="container">
+    <div id="wrap">
     	<div class="row">
-        	<div class="col-md-6">
+        	<div class="col-md-12">
                 <h1>Categories
                 <a href="{{url_for('category.addCategory')}}">
                     <button class="btn btn-default" id="new-category">
@@ -39,28 +24,42 @@
                     </button>
                 </a>
                 </h1>
-        		<div class="row">
-					{% for category in categories %}
-						<a href = "{{url_for('category.showCategory', name=category.name)}}">
-						<div class="row">
-							<div class="col-md-10 category-list">
-								<h3>{{category.name}}</h3>
-							</div>
-						</div>
-						</a>
-					{% endfor %}
-				</div>
+            </div>
+            <div class="category-columns">
+				{% for category in categories %}
+					<!-- Begin category cards -->
+					<div class="col-md-3">
+						<div class="category-card">
+  								<div class="category-boxtop"></div>
+    							{% if category.picture != None and category.picture != "" %}
+    								<div class="category-picture">
+    									<img src={{category.picture}} alt="">
+    								</div>
+    							{% endif %}
+ 								<div class="info">
+    								<div class="title">
+   										<a href = "{{url_for('category.showCategory', name=category.name)}}">{{category.name}}</a>
+   									</div>
+ 								</div>
+ 								<div class="description">
+  									{{category.description}}
+ 								</div>
+ 							</div>
+ 					</div>
+ 					<!-- This is the end of a card -->
+			{% endfor %}
+		</div>
+			<div class="col-md-12"></div>
 			</div>
        		<div class="col-md-6">			
 				<div class="row">
                     <h1>Recent Items</h1>
+                    <ul class="list-unstyled">
 					{% for item in items %}
 						<a href = "{{url_for('category.showIdCategory', category_id=item.category_id)}}">
-						<div class="row">
-							<div class="col-md-10 item-list">
-								<h3>{{item.name}}</h3>
-							</div>
-						</div>
+						<li>
+							<h3>{{item.name}}</h3>
+						</li>
 						</a>
 					{% endfor %}
 				</div>
