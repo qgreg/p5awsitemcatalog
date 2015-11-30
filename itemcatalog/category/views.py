@@ -83,10 +83,12 @@ def showIdCategory(category_id):
 @category.route('/category/<name>/')
 def showCategory(name):
     category = Category.query.filter_by(name=name).first_or_404()
-    items = Item.query.filter_by(category_id=category.id).order_by(Item.name)
+    #items = db.session.query(Item, Category).filter(Item.category_id = Category.id).\
+    #    filter_by(category_id=category.id).order_by(Item.name).all()
+    items = Item.query.filter_by(category_id=category.id).order_by(Item.name).all()
     editCategory = False
     if 'users_id' in login_session:
-        user = Users.query.filter_by(id=login_session['users_id'])
+        user = Users.query.filter_by(id=login_session['users_id']).first_or_404()
         if category.users_id == login_session['users_id'] or user.admin:
             editCategory = True
     return render_template('showCategory.html', category=category, 
@@ -99,7 +101,7 @@ def editCategory(name):
         return redirect('/login')
     else:
         category = Category.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(id=login_session['users_id'])
+        user = Users.query.filter_by(id=login_session['users_id']).first_or_404()
         if category.users_id != login_session['users_id'] and not user.admin:
             flash(' You are not authorized to make that edit.')
             return redirect(url_for('category.showCategory', category_id=category_id))
@@ -170,25 +172,30 @@ def areaAddItem(name):
     else:
         category = Category.query.filter_by(name=name).first_or_404()
         user = Users.query.filter_by(id=login_session['users_id'])
+        form = ItemForm()
         if category.users_id != login_session['users_id'] and not user.admin:
             flash(' You are not authorized add items to that category.')
             return redirect(url_for('category.showCategory', category_id=category_id))
     if request.method == 'POST':
         itemslist = request.form['itemslist'].splitlines(True)
+        category = Category.query.filter_by(name=name).first_or_404()
         for item in itemslist:
-            newItem = Item(item, "", "", category_id, login_session['users_id'])
+            newItem = Item(item, "", "", "",    category.id, login_session['users_id'])
             db.session.add(newItem)
             db.session.commit() 
             flash('New Category %s Successfully Created' % category.name)
         return redirect(url_for('category.showHome'))
     else:
-        return render_template('areanewItem.html', category=category)
+        return render_template('areanewItem.html', category=category, form=form)
 
 @category.context_processor
 def provideUser():
     if 'username' in login_session:
-        loginuser = Users.query.filter_by(id=login_session['users_id']).first_or_404()
-        return {'loginuser': loginuser,}
+        try:
+            loginuser = Users.query.filter_by(id=login_session['users_id']).first_or_404()
+            return {'loginuser': loginuser,}
+        except DatabaseError:
+            return "The database may be sleeping. Try reloading the page."
     else:
         return {'loggedin': False,}
 
@@ -199,7 +206,7 @@ def editItem(name):
         return redirect('/login')    
     else:
         item = Item.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(id=login_session['users_id'])
+        user = Users.query.filter_by(id=login_session['users_id']).first_or_404()
         if item.users_id != login_session['users_id'] and not user.admin:
             flash(' You are not authorized to make that edit.')
             category = session.query(Category).filter_by(id=item.category_id)
