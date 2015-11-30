@@ -8,7 +8,7 @@
 			{%if 'username' not in session %}
 			<a href="{{url_for('login.showLogin')}}">Login</a>
 			{% else %}
-			<a href="{{url_for('login.disconnect')}}">Logout</a>
+			Welcome, <a href="{{url_for('category.showUser'),1}}">{{session['username']}}</a><a href="{{url_for('login.disconnect')}}">Logout</a>
 			{% endif %}
 		
 	</div>
