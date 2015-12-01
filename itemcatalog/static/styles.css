@@ -23,6 +23,22 @@ h3 {
     line-height: 27px;
 }
 
+/* navbar */
+.navbar-default {
+    background-color: #FF9065;
+    border-color: #E7E7E7;
+}
+
+/* title */
+.navbar-default .navbar-brand {
+    color: black;
+}
+
+/* link */
+.navbar-default .navbar-nav > li > a {
+    color: black;
+}
+
 #wrap{
  background:#FFD79A;
 }
