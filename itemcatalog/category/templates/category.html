@@ -17,13 +17,15 @@
     <div id="wrap">
     	<div class="row">
         	<div class="col-md-12">
-                <h1>Categories
-                <a href="{{url_for('category.addCategory')}}">
-                    <button class="btn btn-default" id="new-category">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                    </button>
-                </a>
-                </h1>
+        		<div class="category-header">
+                	<h1>Categories
+                		<a href="{{url_for('category.addCategory')}}">
+                    		<button class="btn btn-default" id="new-category">
+                        		<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    		</button>
+                		</a>
+                	</h1>
+            	</div>
             </div>
             <div class="category-columns">
 				{% for category in categories %}
@@ -58,7 +60,7 @@
 					{% for item in items %}
 						<a href = "{{url_for('category.showIdCategory', category_id=item.category_id)}}">
 						<li>
-							<h3>{{item.name}}</h3>
+							<h3>{{item.name}}<small>{{item.categoryname}}</h3>
 						</li>
 						</a>
 					{% endfor %}
