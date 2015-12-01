@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, \
 	jsonify, Blueprint, current_app
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import DatabaseError
 from flask import session as login_session 
 
 from models import db, Category, Item, Users
