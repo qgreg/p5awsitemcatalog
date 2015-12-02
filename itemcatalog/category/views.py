@@ -19,7 +19,9 @@ category = Blueprint('category', __name__, template_folder="templates")
 @category.route('/home/')
 def showHome():
     categories = Category.query.order_by(Category.name)
-    items = Item.query.order_by(Item.dateCreated.desc()).slice(0, 10)
+    items = db.session.query(Item.name, Item.users_id, Category.name.label('categoryname'),\
+        Item.dateCreated, Item.category_id).filter(Item.category_id == \
+        Category.id).order_by(Item.dateCreated.desc()).slice(0, 20)
     return render_template('category.html', categories=categories, items=items)
 
 
