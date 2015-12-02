@@ -18,11 +18,18 @@ category = Blueprint('category', __name__, template_folder="templates")
 @category.route('/')
 @category.route('/home/')
 def showHome():
-    categories = Category.query.order_by(Category.name)
+    categorycount = Category.query.count()
+    firstcategories = Category.query.order_by(Category.name).slice(0,7)
+    remaincategories = Category.query.order_by(Category.name).offset(7)
+    morecategories = False
+    if categorycount > 7:
+        morecategories = True
+    print morecategories
     items = db.session.query(Item.name, Item.users_id, Category.name.label('categoryname'),\
         Item.dateCreated, Item.category_id).filter(Item.category_id == \
         Category.id).order_by(Item.dateCreated.desc()).slice(0, 20)
-    return render_template('category.html', categories=categories, items=items)
+    return render_template('category.html', firstcategories=firstcategories, 
+        remaincategories=remaincategories, items=items, morecategories=morecategories)
 
 
 @category.route('/user/<int:users_id>')

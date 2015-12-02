@@ -29,7 +29,7 @@
                 </div>
             </div>
             
-				{% for category in categories %}
+				{% for category in firstcategories %}
 					<!-- Begin category cards -->
 					<div class="col-md-3">
 						
@@ -75,12 +75,53 @@
 						<span class="recentitems">
 							{{item.categoryname}}
 						</span>
-					</h3>
-					<h3>        </h3>     
+					</h3>    
 				{% endfor %}
 			</div>
 		</div>
     </div>
-    <div class="col-md-10">...</div>
+    <div class="col-md-12"></div>
 
+	{% if morecategories %}
+		<div id="wrap">
+    		<div class="row">
+    			<div class="category-columns">
+        		<div class="col-md-3">
+        			<div class="category-header">
+                		<h1>More Categories
+                			<a href="{{url_for('category.addCategory')}}">
+                    			<button class="btn btn-default" id="new-category">
+                        			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    			</button>
+                			</a>
+                		</h1>
+                	</div>
+            	</div>
+            
+				{% for category in remaincategories %}
+					<!-- Begin category cards -->
+					<div class="col-md-3">
+						<div class="category-card">
+  							<div class="category-boxtop"></div>
+    						{% if category.picture != None and category.picture != "" %}
+    							<div class="category-picture">
+    								<img src={{category.picture}} alt="">
+    							</div>
+    						{% endif %}
+ 							<div class="info">
+    							<div class="title">
+   									<a href = "{{url_for('category.showCategory', name=category.name)}}">{{category.name}}</a>
+   								</div>
+ 							</div>
+							<div class="description">
+  								{{category.description}}
+ 							</div>
+ 						</div>
+ 					</div>
+ 					<!-- This is the end of a card -->
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+{% endif %}
 {% endblock %}
