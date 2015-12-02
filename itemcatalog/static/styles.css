@@ -53,11 +53,17 @@ h3 {
   background-color: #fff;
 }
 
+[class*='col-'] {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 
 .category-header {
     margin: 15px;
     background-color: #FFFAF3;
     text-align: center;
+    min-height: 150px;
 }
 
 .category-header button {
@@ -65,11 +71,11 @@ h3 {
 }
 
 .category-card {
-    margin: 15px;
+    margin: 10px 10px 10px 10px;
 }
 
 .category-boxtop {
-  height: 70px;
+  height: 60px;
   background-color: #FF9900
 }
  
@@ -80,10 +86,10 @@ h3 {
 }
  
 .category-card .category-picture img {
-  width: 80px;
-  height: 80px;
-  max-width: 80px;
-  max-height: 80px;
+  width: 60px;
+  height: 60px;
+  max-width: 60px;
+  max-height: 60px;
 }
  
 .category-card .info {
@@ -92,7 +98,7 @@ h3 {
  
 .category-card a {
   margin-bottom: 4px;
-  font-size: 27px;
+  font-size: 24px;
   line-height: 1;
   color: #262626;
   vertical-align: middle;
@@ -116,3 +122,31 @@ h3 {
   padding-top: 0;
   overflow: hidden;
 }
+
+.category-columns > .col-md-3:nth-child(4n+1) {
+    clear: both;
+}
+
+.recentdiv {
+    background-color: FFD958;
+}
+
+.itemlist h3 {
+    display: inline;
+    margin-right: 5px;
+    white-space: nowrap;
+}
+
+.recentitems {
+    background-color: #FFBC58;
+    padding: 5px;
+    color: black;
+}
+
+.recentitems a {
+    background-color: #FFBC58;
+    padding: 5px;
+    color: black;
+}
+
+
