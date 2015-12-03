@@ -18,9 +18,12 @@ category = Blueprint('category', __name__, template_folder="templates")
 @category.route('/')
 @category.route('/home/')
 def showHome():
-    categorycount = Category.query.count()
-    firstcategories = Category.query.order_by(Category.name).slice(0,7)
-    remaincategories = Category.query.order_by(Category.name).offset(7)
+    try:
+        categorycount = Category.query.count()
+        firstcategories = Category.query.order_by(Category.name).slice(0,7)
+        remaincategories = Category.query.order_by(Category.name).offset(7)
+    except DatabaseError:
+        return "The database may be sleeping. Try reloading the page."
     morecategories = False
     if categorycount > 7:
         morecategories = True
@@ -134,7 +137,7 @@ def deleteCategory(name):
         return redirect('/login')
     else:
         category = Category.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(id=login_session['users_id'])
+        user = Users.query.filter_by(id=login_session['users_id']).first_or_404()
         if category.users_id != login_session['users_id'] and not user.admin:
             flash(' You are not authorized to delete this category.')
             return redirect(url_for('category.showCategory', category_id=category_id))
@@ -181,7 +184,7 @@ def areaAddItem(name):
         return redirect('/login')
     else:
         category = Category.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(id=login_session['users_id'])
+        user = Users.query.filter_by(id=login_session['users_id']).first_or_404()
         form = ItemForm()
         if category.users_id != login_session['users_id'] and not user.admin:
             flash(' You are not authorized add items to that category.')
@@ -202,7 +205,7 @@ def areaAddItem(name):
 def provideUser():
     if 'username' in login_session:
         try:
-            loginuser = Users.query.filter_by(id=login_session['users_id']).first_or_404()
+            loginuser = Users.query.filter_by(email=login_session['email']).first_or_404()
             return {'loginuser': loginuser,}
         except DatabaseError:
             return "The database may be sleeping. Try reloading the page."
@@ -247,7 +250,7 @@ def deleteItem(name):
         return redirect('/login')
     else:
         item = Item.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(id=login_session['users_id'])
+        user = Users.query.filter_by(id=login_session['users_id']).first_or_404()
         if item.users_id != login_session['users_id'] and not user.admin:
             category = Category.query.filter_by(id=item.category_id).first_or_404()
             flash('User does not have permission to delete %s.' % category.name)
