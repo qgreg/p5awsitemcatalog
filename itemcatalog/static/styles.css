@@ -42,18 +42,13 @@ h3 {
  background:#FFD79A;
 }
 
-/*.category-columns .col {
-  padding-right:15px;
-  padding-left:15px;
-}*/
-
 .category-card {
   position: relative;  
   text-align: center;
   background-color: #fff;
 }
 
-[class*='col-'] {
+#wrap [class*='col-'] {
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -150,4 +145,41 @@ h3 {
     color: black;
 }
 
+.showcategorytitletile {
+    background-color: #FFBC58;
+    margin-top: 10px;
+    min-height: 375px;
+}
 
+.showcategorytitletile h1 {
+    position: relative;
+    left: 10px;
+}
+
+.showcategorytitletile p {
+    position: relative;
+    left: 10px;
+}
+
+.showcategorytitletile img {
+    margin: 10px;
+}
+
+.showcategorytitletile .btn-group {
+    vertical-align: top;
+    margin-top: 5px;
+}
+
+.itemtile img {
+    margin: 5px;
+}
+
+.itemtile h3 {
+    margin-top: 10px;
+}
+
+.itemtile .itembox {
+    background-color: #FFD79A;
+    margin: 10px;
+    min-height: 180px
+} 

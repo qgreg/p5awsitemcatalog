@@ -1,72 +1,59 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-	<div class="row top-menu">
-		<div class="col-md-10"></div>
-		<div class="col-md-2 text-right"></div>
-	</div>
-	<div class="row divider blue">
-		<div class="col-md-12"></div>
-	</div>
-	<div class="row banner main">
-		<div class="col-md-1"></div>
-        <div class="col-md-2">
-            {% if category.picture != "" %}
-                <img src="{{category.picture}}" width="110px">
-            {% else %}
-                <img src="http://www.gamingevolution.info/screenshots/main.php/d/149898-1/Greystar.gif" width="110px">
+
+<div class="container">
+    <div class = 'flash'>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li> <strong> {{ message }} </strong> </li>
+                    {% endfor %}
+                </ul>
             {% endif %}
-        </div>
-		<div class="col-md-8 padding-none">
-            <h1>Category: {{category.name}}
-            {% if editCategory %}
-            <div class="btn-group" role="group">
-                <a href="{{url_for('category.addItem', name=category.name)}}" class="btn btn-default" role="button" id="new-item">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </a>
-                <a href="{{url_for('category.editCategory', name=category.name)}}" class="btn btn-default" role="button" id="edit-category">
-                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                </a>
-                <a href="{{url_for('category.deleteCategory', name=category.name)}}" class="btn btn-default" role="button" id="delete-category">
-                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                </a>
+        {% endwith %}
+    </div>
+
+    <div class = "row">
+	    
+            <div class="col-md-4">
+                <div class="showcategorytitletile">
+                {% if category.picture != "" %}
+                    <img src="{{category.picture}}" width="110px">
+                {% else %}
+                    <img src="http://www.gamingevolution.info/screenshots/main.php/d/149898-1/Greystar.gif" width="110px">
+                {% endif %}
+                {% if editCategory %}
+                    <div class="btn-group" role="group">
+                        <a href="{{url_for('category.addItem', name=category.name)}}" class="btn btn-default" role="button" id="new-item">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            </a>
+                        <a href="{{url_for('category.editCategory', name=category.name)}}" class="btn btn-default" role="button" id="edit-category">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                            </a>
+                        <a href="{{url_for('category.deleteCategory', name=category.name)}}" class="btn btn-default" role="button" id="delete-category">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                {% endif %}
+                <h1>
+                    {{category.name}}
+                </h1>
+                <p>{{category.description}}</p>
             </div>
-            {% endif %}
-            </h1>
-		</div>
-        <div class="col-md-1"></div>
-	</div>
+        </div>			
 
-	<div class = 'flash'>
-		{% with messages = get_flashed_messages() %}
-      		{% if messages %}
-        		<ul>
-        			{% for message in messages %}
-           				<li> <strong> {{ message }} </strong> </li>
-        			{% endfor %}
-        		</ul>
-        	{% endif %}
-    	{% endwith %}
-	</div>
-	
-	<div class="row padding-top padding-bottom">
-		<div class="col-md-1"></div>
-		<div class="col-md-10 padding-none">
-		</div>
-		<div class="col-md-1"></div>
-	</div>
-    <div class="col-md-1"></div>
-    <div class="col-md-10 padding-none">
-        <div class="row">			
-
-		    {% for item in items %}
-                <div class="col-md-6">
+        {% for item in items %}
+            <div class="itemtile">
+                <div class="col-md-4">
+                    <div class="itembox">
                     <div class="row">
                         <div class="col-md-4">
-				            {% if item.amazon_asin != "" %}
+                            {% if item.amazon_asin != "" and item.amazon_asin != None %}
                                 <a rel="nofollow" href="http://www.amazon.com/gp/product/{{item.amazon_asin}}/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN={{item.amazon_asin}}&linkCode=as2&tag=gregquinlanwo-20">
                                     <img border="0" src="http://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN={{item.amazon_asin}}&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=gregquinlanwo-20">
-                                </a>
+                               </a>
                                 <img src="http://ir-na.amazon-adsystem.com/e/ir?t=gregquinlanwo-20&l=as2&o=1&a={{item.amazon_asin}}" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
                             {% else %}
                                 {% if item.picture != "" and item.picture != None %}
@@ -74,7 +61,7 @@
                                 {% endif %}
                             {% endif %}
                         </div>
-                        <div class="col-md-8">
+                    <div class="col-md-8">
                         <h3>{{item.name}}</h3>
                         <p>{{item.description}}</p> 
                         {% if editCategory %}
@@ -86,13 +73,14 @@
                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                 </a>
                             </div>
-                        {% endif %}                       
-			         </div>
-            </div>	
-            </div>					
-		  {% endfor %}
-    
+                        {% endif %}
+                    </div>
+                    </div>
+                </div>	
+            </div>
+        {% endfor %}
+        <div class="col-md-12"></div>
     </div>
-    <div class="col-md-10">...</div>
-	</div>
+</div>
+    
 {% endblock %}
