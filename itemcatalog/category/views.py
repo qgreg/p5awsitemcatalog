@@ -153,7 +153,7 @@ def addItem(name):
         return redirect('/login')
     else:
         category = Category.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(id=login_session['users_id'])
+        user = Users.query.filter_by(id=login_session['users_id']).first_or_404()
         if category.users_id != login_session['users_id'] and not user.admin:
             flash(' You are not authorized add items to that category.')
             return redirect(url_for('category.showCategory', name=name))
