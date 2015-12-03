@@ -27,7 +27,7 @@
 					<img src="{{ loginuser.picture }}" height="50">
 				</li>
 				<li>
-					<a href="{{url_for('category.showUser', users_id=1)}}">{{loginuser.name}}</a>
+					<a href="{{url_for('category.showUser', users_id=loginuser.id)}}">{{loginuser.name}}</a>
 				</li>
 				<li>
 					<a href="{{url_for('login.disconnect')}}">Logout</a>
