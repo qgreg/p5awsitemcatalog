@@ -27,7 +27,6 @@ def showHome():
     morecategories = False
     if categorycount > 7:
         morecategories = True
-    print morecategories
     items = db.session.query(Item.name, Item.users_id, Category.name.label('categoryname'),\
         Item.dateCreated, Item.category_id).filter(Item.category_id == \
         Category.id).order_by(Item.dateCreated.desc()).slice(0, 20)
