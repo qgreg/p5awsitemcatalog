@@ -3,24 +3,15 @@ DEBUG = True
 
 # Define the application directory
 import os
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))  
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Define the database - we are working with
-# SQLite for this example
-SQLALCHEMY_DATABASE_URI = 'postgres://ryztryqknsyzog:fVxpW9KcpmHAFAqMo1mBcidICf@ec2-107-21-219-109.compute-1.amazonaws.com:5432/d4kcqmr928j0p2'
-
-
-# Application threads. A common general assumption is
-# using 2 per available processor cores - to handle
-# incoming requests using one and performing background
-# operations using the other.
-# THREADS_PER_PAGE = 2
+SQLALCHEMY_DATABASE_URI = 'postgres://ryztryqknsyzog:fVxpW9KcpmHAFAqMo1mBcidICf@ec2-107-21-219-109.compute-1.amazonaws.com:5432/d4kcqmr928j0p2'  # noqa
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
-CSRF_ENABLED     = True
+CSRF_ENABLED = True
 
-# Use a secure, unique and absolutely secret key for
-# signing the data. 
+# Use a secure, unique and absolutely secret key for signing the data.
 CSRF_SESSION_KEY = "secret"
 
 # Secret key for signing cookies

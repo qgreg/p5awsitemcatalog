@@ -1,20 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, \
-    jsonify, Blueprint
+    jsonify, Blueprint, make_response
 
 from datetime import datetime
 
 from flask import session as login_session
-import random, string
+import random
+import string
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
 import json
-from flask import make_response
 import requests
 
 from itemcatalog.category.models import db, Users
 
+# Define login_blueprint
 login_blueprint = Blueprint(
     'login', __name__,
     template_folder="templates")
@@ -24,10 +25,15 @@ CLIENT_ID = json.loads(
 APPLICATION_NAME = "Item Catalog"
 
 
-# Create a state token to prevent request forgery
-# Store it in login_session for later validation
 @login_blueprint.route('/login')
 def showLogin():
+    """Create a state token to prevent request forgery, Store it in login_session
+    for later validation.
+
+    Returns:
+        Login page.
+    """
+
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
@@ -36,6 +42,12 @@ def showLogin():
 
 @login_blueprint.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    """Confirm connection with Facebook, collect user info and store key logout
+    info. Register user if new.
+
+    Returns: Login acknowledgement.
+    """
+
     # Confirm state token, then record access_token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -49,8 +61,9 @@ def fbconnect():
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' \
-        % (app_id, app_secret, access_token)
+    url = 'https://graph.facebook.com/oauth/access_token?\
+        grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s'\
+        % (app_id, app_secret, access_token)  # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -106,6 +119,11 @@ def fbconnect():
 
 @login_blueprint.route('/fbdisconnect')
 def fbdisconnect():
+    """Posts logout with Facebook using Facebook ID and access token.
+
+    Returns: Logout acknowledgement.
+    """
+
     # Send id and access token to Facebook to delete login
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
@@ -119,6 +137,12 @@ def fbdisconnect():
 
 @login_blueprint.route('/gconnect', methods=['POST'])
 def gconnect():
+    """Manage sign in connection with Google, using state token and auth code to
+    obtain access token for the correct user ID number. Collect user info and
+    store key logout info. Register user if new.
+
+    Returns: Login acknowledgement.
+    """
     # Confirm state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -138,7 +162,7 @@ def gconnect():
         return response
     access_token = credentials.access_token
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
-            % access_token)
+           % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
     if result.get('error') is not None:
@@ -161,6 +185,7 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+    # Verify if user if already connected
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
@@ -208,6 +233,11 @@ def gconnect():
 
 @login_blueprint.route('/disconnect')
 def disconnect():
+    """Perform provider specific logout then delete stored user information.
+
+    Returns: Redirects to home.
+    """
+
     # Perform provider based disconnects
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
@@ -233,6 +263,11 @@ def disconnect():
 
 @login_blueprint.route('/gdisconnect')
 def gdisconnect():
+    """Revoke Google login for a connected user.
+
+    Returns: Logout acknowledgement.
+    """
+
     # Only disconnect a connected user
     credentials = login_session.get('credentials')
     if credentials is None:
@@ -240,12 +275,14 @@ def gdisconnect():
             json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
+
     # Revoke google login
-    access_token = credentials #.access_token
+    access_token = credentials
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
 
+    # Confirm successful logout
     if result['status'] == '200':
         # Reset the user's sesson.
         del login_session['credentials']
@@ -262,8 +299,15 @@ def gdisconnect():
 
 
 def createUsers(login_session):
-    newUser = Users(login_session['username'], login_session['email'], 
-      login_session['picture'])
+    """Create a new User record from login information.
+
+    Args: The Flask session as login_session
+
+    Returns: New Users ID number.
+    """
+
+    newUser = Users(login_session['username'], login_session['email'],
+                    login_session['picture'])
     db.session.add(newUser)
     db.session.commit()
     users = session.query(Users).filter_by(email=login_session['email']).one()
@@ -271,11 +315,24 @@ def createUsers(login_session):
 
 
 def getUsersInfo(users_id):
+    """Returns a Users record from a Users ID.
+
+    Args: A Users ID
+
+    Returns: A Users record.
+    """
+
     users = Users.query.filter_by(id=users_id).first_or_404()
     return users
 
 
 def getUsersID(email):
+    """Find a Users ID, if it exists, from a Users email.
+
+    Args: An email address
+
+    Returns: The Users ID number.
+    """
     try:
         users = Users.query.filter_by(email=email).first_or_404()
         return users.id
