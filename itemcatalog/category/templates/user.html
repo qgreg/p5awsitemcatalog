@@ -16,6 +16,7 @@
     </div>
 
     <div class="row">
+        <!-- User information tile -->
         <div class="col-md-4 text-center">
             <div class="category-card">
                 <div class="category-boxtop"></div>
@@ -33,7 +34,9 @@
                     {{user.email}}
                 </div>
             </div>
+            <!-- if admin, change admin role-->
             {% if editUser %}
+                <!-- if admin, show revoke admin role. Otherwise show set admin role-->
                 {% if user.admin %}
                     <form action="{{ url_for('category.changeAdmin', users_id=user.id) }}", method = 'post'>
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -53,6 +56,7 @@
             <div class="category-boxtop"></div> 
         </div>		
 
+        <!-- List of user created categories-->
         <div class="col-md-4">
             <h2>Categories
                 <a href="{{url_for('category.addCategory')}}">
@@ -69,6 +73,7 @@
                 </p>
             {% endfor %}
         </div>
+        <!-- User list available to admins-->
         {% if editUser %}
             <div class="col-md-4">
                 <h2>Users</h2>

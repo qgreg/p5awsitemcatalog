@@ -2,11 +2,11 @@
 {% block content %}
 {% include "header.html" %}
 
-
 <div class="container">
 
 	<h2> Are you sure you want to delete the category {{category.name}}? </h2>
 	<form action="{{ url_for('category.deleteCategory', name=category.name) }}", method = 'post'>
+		<!--CSRF Token used by Flask-WTF for provide CSRF protection-->
 		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
 		<button type="submit" class="btn btn-default delete" id="submit" type="submit">
