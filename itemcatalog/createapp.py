@@ -6,7 +6,7 @@ csrf = CsrfProtect()
 
 
 def create_app(config_filename):
-    """Creates and configures the Flask app, including initiating the database,
+    """Create and configure the Flask app, including initiating the database,
     registering the login_blueprint and cateogry blueprints, and establishes
     CSRF protection.
 
