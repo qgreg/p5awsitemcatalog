@@ -9,7 +9,12 @@
 		<!--CSRF Token used by Flask-WTF for provide CSRF protection-->
 		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-		<button type="submit" class="btn btn-default delete" id="submit" type="submit">
+		<!-- Show a checkbox prompt if there are items for this category. -->
+		{% if cascadeAlert %}
+			<p><strong>Warning:</strong> There are items existing for this category.</p>
+			<label><input type="checkbox" id="cascadeDeleter" name="cascadeDelete"> Check the box to verify that deleting this category will delete all items for this category as well.</label><br>
+		{% endif %}
+		<button type="submit" class="btn btn-default delete" disabled=True id="submit" type="submit">
 		<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
 	</form>
 	<a href = '{{url_for('category.showCategory', name=category.name)}}'>
@@ -18,5 +23,15 @@
     	</button>
 	</a>
 </div>
+
+<!-- Disable the submit button until the checkbox if checked. -->
+{% if cascadeAlert %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type='text/javascript'>
+        $('#cascadeDeleter').change(function () {
+    		$('#submit').prop("disabled", !this.checked);
+		}).change()
+</script>
+{% endif %}
 
 {% endblock %}
