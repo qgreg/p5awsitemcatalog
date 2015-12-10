@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, \
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import DatabaseError
 from flask import session as login_session
+from functools import wraps
 
 from models import db, Category, Item, Users
 
@@ -15,6 +16,40 @@ import re
 category = Blueprint('category', __name__, template_folder="templates")
 
 
+@category.context_processor
+def provideUser():
+    """Provide the loginuser to the request context.
+
+    Args: A category name
+
+    Returns: The login user not loggedin to the request context.
+    """
+    # Check for login
+    if 'username' in login_session:
+        try:
+            # Store the legin user and return
+            loginuser = Users.query.filter_by(
+                email=login_session['email']).first_or_404()
+            return {'loginuser': loginuser, }
+        except DatabaseError:
+            return "The database may be sleeping. Try reloading the page."
+    else:
+        return {'loggedin': False, }
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        """Decorator requires login before access to the function.
+
+        Returns: Decorated function.
+        """
+        if 'username' in login_session:
+            return f(*args, **kwargs)
+        else:
+            flash("Log in for access to that page.")
+            return redirect(url_for('login.showLogin', next=request.url))
+    return decorated_function
 @category.route('/')
 @category.route('/home/')
 def showHome():
@@ -51,6 +86,7 @@ def showHome():
 
 
 @category.route('/user/<int:users_id>')
+@login_required
 def showUser(users_id):
     """Render a user profile page, including categories created. For admin, manage
     users.
@@ -59,28 +95,24 @@ def showUser(users_id):
 
     Returns: User profile page for the given users ID.
     """
-    # Login if a user hasn't done so
-    if 'username' not in login_session:
-        return redirect('/login')
+    # Determine who is the current user, to see if they are an admin
+    adminuser = Users.query.filter_by(
+        id=login_session['users_id']).first_or_404()
+    # Store the users info for the page
+    showuser = Users.query.filter_by(id=users_id).first_or_404()
+    # If the logged in user is an admin, they can view and edit user info
+    if adminuser.admin:
+        editUser = True
+        userslist = Users.query.all()
     else:
-        # Determine who is the current user, to see if they are an admin
-        adminuser = Users.query.filter_by(
-            id=login_session['users_id']).first_or_404()
-        # Store the users info for the page
-        showuser = Users.query.filter_by(id=users_id).first_or_404()
-        # If the logged in user is an admin, they can view and edit user info
-        if adminuser.admin:
-            editUser = True
-            userslist = Users.query.all()
-        else:
-            editUser = False
-            userslist = None
-        # Store categories created by the Users of the given ID
-        categories = Category.query.filter_by(
-            users_id=showuser.id).order_by(category.name)
-        return render_template(
-            'user.html', user=showuser, categories=categories,
-            editUser=editUser, userslist=userslist)
+        editUser = False
+        userslist = None
+    # Store categories created by the Users of the given ID
+    categories = Category.query.filter_by(
+        users_id=showuser.id).order_by(category.name)
+    return render_template(
+        'user.html', user=showuser, categories=categories,
+        editUser=editUser, userslist=userslist)
 
 
 @category.route('/user/<int:users_id>/change', methods=['POST'])
@@ -110,14 +142,12 @@ def changeAdmin(users_id):
 
 
 @category.route('/category/add', methods=['GET', 'POST'])
+@login_required
 def addCategory():
     """Add a new category.
 
     Returns: Redirect Home.
     """
-    # Logged in user required
-    if 'username' not in login_session:
-        return redirect('/login')
     # Initiate the form.
     form = CategoryForm()
     # On POST of a valid form, add the new category.
@@ -174,6 +204,7 @@ def showCategory(name):
 
 
 @category.route('/category/<name>/edit/', methods=['GET', 'POST'])
+@login_required
 def editCategory(name):
     """Edit a named category or render a form.
 
@@ -181,19 +212,14 @@ def editCategory(name):
 
     Returns: Edited category or render a form.
     """
-    # Logged in user required
-    if 'username' not in login_session:
-        return redirect('/login')
-    else:
-        # Store caetgory and logged in user
-        category = Category.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(
-            id=login_session['users_id']).first_or_404()
-        # Verify that the logged in user is creator or admin
-        if category.users_id != login_session['users_id'] and not user.admin:
-            flash(' You are not authorized to make that edit.')
-            return redirect(url_for(
-                'category.showCategory', category_id=category_id))
+    # Store caetgory and logged in user
+    category = Category.query.filter_by(name=name).first_or_404()
+    user = Users.query.filter_by(
+        id=login_session['users_id']).first_or_404()
+    # Verify that the logged in user is creator or admin
+    if category.users_id != login_session['users_id'] and not user.admin:
+        flash(' You are not authorized to make that edit.')
+        return redirect(url_for('category.showCategory', category_id=category_id))
     # Initiate the form.
     form = CategoryForm(obj=category)
     # On POST of a valid form, edit the category.
@@ -211,6 +237,7 @@ def editCategory(name):
 
 
 @category.route('/category/<name>/delete/', methods=['GET', 'POST'])
+@login_required
 def deleteCategory(name):
     """Delete a named category or render a form.
 
@@ -218,19 +245,20 @@ def deleteCategory(name):
 
     Returns: Deleted category or render deleteCategory.
     """
-    # Logged in user required
-    if 'username' not in login_session:
-        return redirect('/login')
-    else:
-        # Store the category and the logged in user
-        category = Category.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(
-            id=login_session['users_id']).first_or_404()
-        # Verify that the logged in user is creator or admin
-        if category.users_id != login_session['users_id'] and not user.admin:
-            flash(' You are not authorized to delete this category.')
-            return redirect(url_for(
-                'category.showCategory', category_id=category_id))
+    # Store the category and the logged in user
+    category = Category.query.filter_by(name=name).first_or_404()
+    user = Users.query.filter_by(
+        id=login_session['users_id']).first_or_404()
+    # Check if there are items for this category
+    itemsCount = Item.query.filter_by(category_id=category.id).count()
+    cascadeAlert = False
+    if itemsCount > 0:
+        cascadeAlert = True
+    # Verify that the logged in user is creator or admin
+    if category.users_id != login_session['users_id'] and not user.admin:
+        flash(' You are not authorized to delete this category.')
+        return redirect(url_for(
+            'category.showCategory', category_id=category_id))
     # Delete category on post.
     if request.method == 'POST':
         db.session.delete(category)
@@ -238,10 +266,12 @@ def deleteCategory(name):
         db.session.commit()
         return redirect(url_for('category.showHome'))
     else:
-        return render_template('deleteCategory.html', category=category)
+        return render_template(
+            'deleteCategory.html', category=category, cascadeAlert=cascadeAlert)
 
 
 @category.route('/category/<name>/item/add/', methods=['GET', 'POST'])
+@login_required
 def addItem(name):
     """Add an item to a named category or render a form.
 
@@ -249,18 +279,14 @@ def addItem(name):
 
     Returns: Add an item or render a form.
     """
-    # Logged in user required
-    if 'username' not in login_session:
-        return redirect('/login')
-    else:
-        # Store named category and the logged in user
-        category = Category.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(
-            id=login_session['users_id']).first_or_404()
-        # Verify that the logged in user is creator or admin
-        if category.users_id != login_session['users_id'] and not user.admin:
-            flash(' You are not authorized add items to that category.')
-            return redirect(url_for('category.showCategory', name=name))
+    # Store named category and the logged in user
+    category = Category.query.filter_by(name=name).first_or_404()
+    user = Users.query.filter_by(
+        id=login_session['users_id']).first_or_404()
+    # Verify that the logged in user is creator or admin
+    if category.users_id != login_session['users_id'] and not user.admin:
+        flash(' You are not authorized add items to that category.')
+        return redirect(url_for('category.showCategory', name=name))
     # Initiate the form.
     form = ItemForm()
     # On POST of a valid form, add the new item.
@@ -285,6 +311,7 @@ def addItem(name):
 
 
 @category.route('/category/<name>/item/add/list', methods=['GET', 'POST'])
+@login_required
 def areaAddItem(name):
     """Add a list of items for a named category or render a form.
 
@@ -292,21 +319,17 @@ def areaAddItem(name):
 
     Returns: Add item list or render a form.
     """
-    # Logged in user required
-    if 'username' not in login_session:
-        return redirect('/login')
-    else:
-        # Store named category and the logged in user
-        category = Category.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(
-            id=login_session['users_id']).first_or_404()
-        # Initiate the form.
-        form = ItemForm()
-        # Verify that the logged in user is creator or admin
-        if category.users_id != login_session['users_id'] and not user.admin:
-            flash(' You are not authorized add items to that category.')
-            return redirect(url_for(
-                'category.showCategory', category_id=category_id))
+    # Store named category and the logged in user
+    category = Category.query.filter_by(name=name).first_or_404()
+    user = Users.query.filter_by(
+        id=login_session['users_id']).first_or_404()
+    # Initiate the form.
+    form = ItemForm()
+    # Verify that the logged in user is creator or admin
+    if category.users_id != login_session['users_id'] and not user.admin:
+        flash(' You are not authorized add items to that category.')
+        return redirect(url_for(
+            'category.showCategory', category_id=category_id))
     # Add the new list of items.
     if request.method == 'POST':
         # Store split lines from form
@@ -328,28 +351,8 @@ def areaAddItem(name):
             'areanewItem.html', category=category, form=form)
 
 
-@category.context_processor
-def provideUser():
-    """Provide the loginuser to the request context.
-
-    Args: A category name
-
-    Returns: The login user not loggedin to the request context.
-    """
-    # Check for login
-    if 'username' in login_session:
-        try:
-            # Store the legin user and return
-            loginuser = Users.query.filter_by(
-                email=login_session['email']).first_or_404()
-            return {'loginuser': loginuser, }
-        except DatabaseError:
-            return "The database may be sleeping. Try reloading the page."
-    else:
-        return {'loggedin': False, }
-
-
 @category.route('/item/<name>/edit/', methods=['GET', 'POST'])
+@login_required
 def editItem(name):
     """Edit an item for a named item or render a form.
 
@@ -357,20 +360,15 @@ def editItem(name):
 
     Returns: Edit an item or render a form.
     """
-    # Logged in user required
-    if 'username' not in login_session:
-        return redirect('/login')
-    else:
-        # Store named item and the logged in user
-        item = Item.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(
-            id=login_session['users_id']).first_or_404()
-        # Verify that the logged in user is creator or admin
-        if item.users_id != login_session['users_id'] and not user.admin:
-            flash(' You are not authorized to make that edit.')
-            category = session.query(Category).filter_by(id=item.category_id)
-            return redirect(url_for(
-                'category.showCategory', name=category.name))
+    # Store named item and the logged in user
+    item = Item.query.filter_by(name=name).first_or_404()
+    user = Users.query.filter_by(
+        id=login_session['users_id']).first_or_404()
+    # Verify that the logged in user is creator or admin
+    if item.users_id != login_session['users_id'] and not user.admin:
+        flash(' You are not authorized to make that edit.')
+        category = session.query(Category).filter_by(id=item.category_id)
+        return redirect(url_for('category.showCategory', name=category.name))
     # Initiate the form.
     form = ItemForm(obj=item)
     # On POST of a valid form, edit the item.
@@ -395,6 +393,7 @@ def editItem(name):
 
 
 @category.route('/item/<name>/delete', methods=['GET', 'POST'])
+@login_required
 def deleteItem(name):
     """Delete a named item or render a form.
 
@@ -402,23 +401,19 @@ def deleteItem(name):
 
     Returns: Delete item or render deleteCategory.
     """
-    # Logged in user required
-    if 'username' not in login_session:
-        return redirect('/login')
-    else:
-        # Store caetgory and logged in user
-        item = Item.query.filter_by(name=name).first_or_404()
-        user = Users.query.filter_by(
-            id=login_session['users_id']).first_or_404()
-        # Verify that the logged in user is creator or admin
-        if item.users_id != login_session['users_id'] and\
-                not user.admin:
-            category = Category.query.filter_by(
-                id=item.category_id).first_or_404()
-            flash('User does not have permission to delete %s.'
-                  % category.name)
-            return redirect(url_for(
-                'category.showCategory', name=category.name))
+    # Store caetgory and logged in user
+    item = Item.query.filter_by(name=name).first_or_404()
+    user = Users.query.filter_by(
+        id=login_session['users_id']).first_or_404()
+    # Verify that the logged in user is creator or admin
+    if item.users_id != login_session['users_id'] and\
+            not user.admin:
+        category = Category.query.filter_by(
+            id=item.category_id).first_or_404()
+        flash('User does not have permission to delete %s.'
+            % category.name)
+        return redirect(url_for(
+            'category.showCategory', name=category.name))
     # On POST, delete the item.
     if request.method == 'POST':
         db.session.delete(item)
