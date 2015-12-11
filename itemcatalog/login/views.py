@@ -306,11 +306,13 @@ def createUsers(login_session):
     Returns: New Users ID number.
     """
 
-    newUser = Users(login_session['username'], login_session['email'],
-                    login_session['picture'])
+    newUser = Users(name=login_session['username'],
+                    email=login_session['email'],
+                    picture=login_session['picture'],
+                    admin = False)
     db.session.add(newUser)
     db.session.commit()
-    users = session.query(Users).filter_by(email=login_session['email']).one()
+    users = db.session.query(Users).filter_by(email=login_session['email']).one()
     return users.id
 
 
