@@ -35,7 +35,8 @@ class Category(db.Model):
     picture = db.Column(db.String(250))
     dateCreated = db.Column(db.Date)
     id = db.Column(db.Integer, primary_key=True)
-    users = db.relationship('Users')
+    users = db.relationship(
+        'Users', backref=db.backref("Category", cascade="all, delete-orphan"))
     users_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __init__(self, name, description, picture, users_id, dateCreated=None):
@@ -71,8 +72,10 @@ class Item(db.Model):
     picture = db.Column(db.String(250))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     users_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    category = db.relationship('Category')
-    users = db.relationship('Users')
+    category = db.relationship(
+        'Category', backref=db.backref("Item", cascade="all, delete-orphan"))
+    users = db.relationship(
+        'Users', backref=db.backref("Item", cascade="all, delete-orphan"))
 
     def __init__(
             self, name, description, amazon_asin,
