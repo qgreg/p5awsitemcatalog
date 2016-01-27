@@ -20,9 +20,13 @@ login_blueprint = Blueprint(
     'login', __name__,
     template_folder="templates")
 
+GOOGLE_CLIENT_SECRETS = 'client_secrets.json'
+FB_CLIENT_SECRETS = 'fb_client_secrets.json'
+
 CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+    open(GOOGLE_CLIENT_SECRETS, 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog"
+
 
 
 @login_blueprint.route('/login')
@@ -57,12 +61,11 @@ def fbconnect():
     print "access token received %s " % access_token
 
     # Send app_id and app_secret
-    app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
+    app_id = json.loads(open(FB_CLIENT_SECRETS, 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
-        open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?\
-        grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s'\
+        open(FB_CLIENT_SECRETS, 'r').read())['web']['app_secret']
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s'\
         % (app_id, app_secret, access_token)  # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -152,7 +155,7 @@ def gconnect():
     code = request.data
     # Exchange auth code for access token
     try:
-        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets(GOOGLE_CLIENT_SECRETS, scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
