@@ -338,13 +338,14 @@ def areaAddItem(name):
         for item in itemslist:
             # Add each item in list
             newItem = Item(
-                item, "", "", "",    category.id, login_session['users_id'])
+                item, "", "", "", category.id, login_session['users_id'])
             db.session.add(newItem)
             db.session.commit()
             flash('New Item %s Successfully Created' % newItem.name)
             # Log new item
-            current_app.logger.info('New Item %s Created on %s' % (
-                item.name, str(item.dateCreated)))
+            current_app.logger.info(
+                'New Item %s Created on %s' %\
+                (newItem.name, str(newItem.dateCreated)))
         return redirect(url_for('category.showHome'))
     else:
         return render_template(
