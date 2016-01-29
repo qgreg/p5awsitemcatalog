@@ -20,8 +20,8 @@ login_blueprint = Blueprint(
     'login', __name__,
     template_folder="templates")
 
-GOOGLE_CLIENT_SECRETS = 'client_secrets.json'
-FB_CLIENT_SECRETS = 'fb_client_secrets.json'
+GOOGLE_CLIENT_SECRETS = '/var/www/itemcatalog/client_secrets.json'
+FB_CLIENT_SECRETS = '/var/www/itemcatalog/fb_client_secrets.json'
 
 CLIENT_ID = json.loads(
     open(GOOGLE_CLIENT_SECRETS, 'r').read())['web']['client_id']
