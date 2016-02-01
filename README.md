@@ -7,41 +7,41 @@ Always have two terminal windows open. When you test changes you have made, this
 
 1. Download Private Key from the Udacity website
 2. Move the private key file into the folder ~/.ssh (where ~ is your environment's home directory). So if you downloaded the file to the Downloads folder, just execute the following command in your terminal.
-'''
+```
 mv ~/Downloads/udacity_key.rsa ~/.ssh/
-'''
+```
 3. Open your terminal and type in
-'''
+```
 chmod 600 ~/.ssh/udacity_key.rsa
-'''
+```
 In your terminal, type in
-'''
+```
 ssh -i ~/.ssh/udacity_key.rsa root@52.11.199.213
-'''
+```
 
 Reference: https://www.udacity.com/account#!/development_environment 
 
 
 ## Adding User grader
 
-'''
+```
 sudo adduser grader
-'''
+```
 
 Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089468
 
 
 ## Giving grader sudo access
 
-'''
+```
 touch /etc/sudoers.d/grader
 sudo nano /etc/sudoers.d/grader
-'''
+```
 
 Add the following line to the file /etc/sudoers.d/grader:
-'''
+```
 grader ALL=(ALL) NOPASSWD:ALL
-'''
+```
 Save and close nano.
 
 Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089471
@@ -50,28 +50,28 @@ Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-480
 ## Securing grader
 
 Switch your user to grader
-'''
+```
 su grader
-'''
+```
 Go to the home directory
-'''
+```
 cd
-'''
+```
 Make a .ssh directory
-'''
+```
 mkdir .ssh
-'''
+```
 
 Create a key locally.
-'''
+```
 ssh-keygen
-'''
+```
 Provide a password for the key file. Save the file locally in the home .ssh file.
 
 Copy the key from your local file to the file /home/grader/.ssh/authorized_keys
 
 Put property security in place
-'''
+```
 chmod 700 ~/.ssh
 chmod 644 ~/.ssh/authorized_keys
 
@@ -79,14 +79,14 @@ Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-480
 
 ## Disable remote root login and enforce key-based authentication
 Edit the configuration file:
-'''
+```
 sudo nano /etc/ssh/sshd_config
-'''
+```
 Change thePermitRootLogin and PasswordAuthentication as follows:
-'''
+```
 PermitRootLogin no
 PasswordAuthentication no
-'''
+```
 
 Reference: http://askubuntu.com/questions/27559/how-do-i-disable-remote-ssh-login-as-root-from-a-server
 
@@ -119,40 +119,40 @@ Reference: http://unix.stackexchange.com/questions/110522/timezone-setting-in-li
 
 ## Change ssh Port to 2222
 
-'''
+```
 sudo nano /etc/ssh/sshd_config
-'''
+```
 Change the text as follows:
-'''
+```
 # What ports, IPs and protocols we listen for
 Port 2200
-'''
+```
 Then restart ssh
-'''
+```
 sudo service ssh restart
-'''
+```
 
 Reference: http://ubuntuforums.org/showthread.php?t=1591681
 
 
 ## Configure Firewall
 
-'''
+```
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow 2200/tcp
 sudo ufw allow www
 sudo ufw allow ntp
-'''
+```
 Check your work with:
-'''
+```
 sudo ufw show added
-'''
+```
 
 Once you have confirmed that the configuration is correct, start the firewall:
-'''
+```
 sudo ufw enable
-'''
+```
 
 Reference
 https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089499
@@ -165,15 +165,15 @@ http://askubuntu.com/questions/30781/see-configured-rules-even-when-inactive
 ## Monitoring Unsuccessful Logins
 
 Install fail2ban
-'''
+```
 sudo apt-get install fail2ban
-'''
+```
 Edit configuration
-'''
+```
 sudo nano /etc/fail2ban/jail.local
-'''
+```
 Add the following actions:
-'''
+```
 [ssh]
 enabled = true
 banaction = ufw-ssh
@@ -217,45 +217,45 @@ banaction = ufw-apache
 filter = apache-overflows
 logpath = /var/log/apache*/error*.log
 maxretry = 2
-'''
+```
 Create banaction files
 
-'''
+```
 sudo touch /etc/fail2ban/action.d/ufw-ssh.conf
 sudo nano /etc/fail2ban/action.d/ufw-ssh.conf
-'''
+```
 Edit the file:
-'''
+```
 [Definition]
 actionstart =
 actionstop =
 actioncheck =
 actionban = ufw insert 1 deny from <ip> to any app OpenSSH
 actionunban = ufw delete deny from <ip> to any app OpenSSH
-'''
+```
 Secondly:
-'''
+```
 sudo touch /etc/fail2ban/action.d/ufw-apache.conf
 sudo nano /etc/fail2ban/action.d/ufw-apache.conf
-'''
+```
 Edit the file:
-'''
+```
 [Definition]
 actionstart =
 actionstop =
 actioncheck =
 actionban = ufw insert 2 deny from <ip> to any app "Apache Full"
 actionunban = ufw delete deny from <ip> to any app "Apache Full"
-'''
+```
 
 https://blog.vigilcode.com/2011/05/ufw-with-fail2ban-quick-secure-setup-part-ii/
 
 
 ## Install logwatch
 
-'''
+```
 sudo apt-get install logwatch
-'''
+```
 
 *** Clarify configuration
 
@@ -271,23 +271,23 @@ https://help.ubuntu.com/community/AutoWeeklyUpdateHowTo
 
 ## Install Apapche
 
-'''
+```
 sudo apt-get install apache2
-'''
+```
 Say Yes to the question
 
 
 ## Install Mod-wsgi
 
-'''
+```
 sudo apt-get install libapache2-mod-wsgi
-'''
+```
 
 ## Install postgresql
 
-'''
+```
 sudo apt-get install postgresql
-'''
+```
 Say yes to the question.
 
 Reference:
@@ -297,9 +297,9 @@ http://blog.udacity.com/2015/03/step-by-step-guide-install-lamp-linux-apache-mys
 
 ## Install psycopg2
 
-'''
+```
 sudo apt-get install python-psycopg2
-'''
+```
 
 Reference: http://initd.org/psycopg/docs/install.html
 
@@ -314,10 +314,10 @@ https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4340119836/m-4801869263
 
 ## Create PostgreSQL User 
 
-'''
+```
 sudo -i -u postgres
 createuser --interactive
-'''
+```
 User 'catalog' was created initiall with CreasteDB permission. 
 
 ## Importing Database Elements from existing Heroku deployment 
@@ -330,9 +330,9 @@ Reference: https://devcenter.heroku.com/articles/heroku-postgres-import-export
 ## PostgreSQL Remote Connections
 
 Confirm that the default configuration does not allow remote connections by reviewing the configuration file.
-'''
+```
 sudo nano /etc/postgresql/9.3/main/pg_hba.conf 
-'''
+```
 
 
 ## Limited permission for PostgreSQL user Catalog
@@ -347,16 +347,16 @@ Reference: https://www.digitalocean.com/community/tutorials/how-to-install-and-u
 
 ## Install git
 
-''''
+```'
 sudo apt-get install git
-'''
+```
 
 ## Clone my repository
 
-'''
+```
 cd /var/www
 sudo git clone https://github.com/qgreg/itemcatalog.git
-'''
+```
 
 Reference: https://help.github.com/articles/cloning-a-repository/
 
@@ -364,25 +364,25 @@ Reference: https://help.github.com/articles/cloning-a-repository/
 ## Install required python packages
 
 First install python pip
-'''
+```
 sudo apt-get install python-pip
-'''
+```
 Answer yes to the question
-'''
+```
 sudo pip install flask
 sudo pip install WTForms
 sudo pip install flask-wtf
 sudo pip install flask-SQLAlchemy
 sudo pip install oauth2client
-'''
+```
 
 ## Create itemcatalog.wsgi
 
 I adapted the existing runserver.py to create itemcatalog.wsgi. The path gets updated:
-'''
+```
 import sys
 sys.path.insert(0, "/var/www/itemcatalog")
-'''
+```
 The createapp assignment gets changed from app to appplication. Edit the config path to the absolute path.
 
 Reference: Configure a Flask app
@@ -391,10 +391,10 @@ http://flask.pocoo.org/docs/0.10/deploying/mod_wsgi/
 ## Configuring itemcatalog.conf
 
 Create itemcatalog.conf and edit for the app.
-'''
+```
 sudo touch /etc/apache2/sites-enabled/itemcatalog.conf
 sudo nano /etc/apache2/sites-enabled/itemcatalog.conf
-'''
+```
 
 References:
 http://drumcoder.co.uk/blog/2010/nov/12/apache-environment-variables-and-mod_wsgi/
@@ -404,27 +404,27 @@ https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-applicati
 ## Securing  .git directory
 
 Add the following line to itemcatalog.conf
-'''
+```
 RedirectMatch 404 /\.git
-'''
+```
 
 http://serverfault.com/questions/128069/how-do-i-prevent-apache-from-serving-the-git-directory
 
 
 ## Enable itemcatalog application
-'''
+```
 sudo a2ensite itemcatalog
-'''
+```
 
 
 ## Get rid of the annoying sudo error
-'''
+```
 sudo nano /etc/hosts
-'''
+```
 If your machine name is ip-10-20-21-48, you append the name to the first line of the file:
-'''
+```
 127.0.0.1 localhost ip-10-20-21-48
-'''
+```
 
 Reference: http://askubuntu.com/questions/59458/error-message-when-i-run-sudo-unable-to-resolve-host-none
 
@@ -456,9 +456,9 @@ Reference: http://askubuntu.com/questions/256013/could-not-reliably-determine-th
 
 ## Automatic Updates
 
-'''
+```
 sudo apt-get install unattended-upgrades
-'''
+```
 
 Reference: https://help.ubuntu.com/lts/serverguide/automatic-updates.html
 
@@ -467,12 +467,12 @@ Reference: https://help.ubuntu.com/lts/serverguide/automatic-updates.html
 Install glances
 ''
 sudo pip install Glances
-'''
+```
 
 To monitor application availability, start Glances from the command line:
-'''
+```
 glances
-'''
+```
 
 Reference: http://glances.readthedocs.org/en/latest/glances-doc.html#configuration
 http://askubuntu.com/questions/293426/system-monitoring-tools-for-ubuntu
