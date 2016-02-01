@@ -68,7 +68,7 @@ Save and close nano.
 Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089471
 
 
-## Securing grader
+## Securing New User
 
 Switch your user to grader
 ```
@@ -92,6 +92,7 @@ Put property security in place:
 ```
 chmod 700 ~/.ssh
 chmod 644 ~/.ssh/authorized_keys
+```
 
 Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089481
 
@@ -240,7 +241,6 @@ logpath = /var/log/apache*/error*.log
 maxretry = 2
 ```
 Create banaction files
-
 ```
 sudo touch /etc/fail2ban/action.d/ufw-ssh.conf
 sudo nano /etc/fail2ban/action.d/ufw-ssh.conf
@@ -274,20 +274,45 @@ https://blog.vigilcode.com/2011/05/ufw-with-fail2ban-quick-secure-setup-part-ii/
 
 ## Install logwatch
 
+Logwatch can allow you to monitor the server's logs.
 ```
 sudo apt-get install logwatch
+sudo apt-get install mailutils
 ```
 
-*** Clarify configuration
+Full admission: I struggled a bit with logwatch and postfix. I finally configured logwatch to send to root, but I'm not sure I could repeat the configuration. The current configuration includes copying the debian configuration to main.cf.
+```
+sudo cp /usr/share/postfix/main.cf.debian /etc/postfix/main.cf
+```
+You also need to make sure there are proper aliases:
+```
+sudo newaliases
+```
+Start postfix.
+```
+sudo /etc/init.d/postfix start
+```
+To view yesterday's logs:
+```
+sudo logwatch
+```
+To view logs in root mail:
+```
+sudo mail
+```
 
-REference: https://blog.vigilcode.com/2011/04/ubuntu-server-initial-security-quick-secure-setup-part-i/
+
+Reference: https://blog.vigilcode.com/2011/04/ubuntu-server-initial-security-quick-secure-setup-part-i/
 
 
-## Manage package updates
+## Manage Security Updates
 
-sudo apt-get install cron-apt
+```
+sudo dpkg-reconfigure --priority=low unattended-upgrades
+```
+Answer yes to the question.
 
-https://help.ubuntu.com/community/AutoWeeklyUpdateHowTo
+Reference: https://help.ubuntu.com/community/AutomaticSecurityUpdates
 
 
 ## Install Apapche
@@ -309,7 +334,7 @@ sudo apt-get install libapache2-mod-wsgi
 ```
 sudo apt-get install postgresql
 ```
-Say yes to the question.
+Say yes to the questiosn.
 
 Reference:
 Installing LAPP
