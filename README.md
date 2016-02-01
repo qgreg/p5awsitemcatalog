@@ -1,7 +1,27 @@
-## Helpful tips
+Provisioning a Webserver
+========================
+
+This project uses the application developed in Project 3 to configure a web server to deplay the appliation. Using a virtual server in Amazon’s Elastic Compute Cloud (EC2), the web server runs a stack of Linux, Apache, PostgreSQL and Python to serve and run the application. 
+
+While the project is available during grading, this is the project's URL:
+http://ec2-52-27-221-22.us-west-2.compute.amazonaws.com/
+
+*Configuring the Server* details the steps taken to confure the server and provides source references for the steps taken.
+
+### Exceeding Specifications
+The project seeks to exceed specifications by implementing the following.
+1. Fail2ban monitors for repeat unsuccessful login attempts and appropriately bans attackers.
+2. *** automatically manages package updates
+3. Glances provides automatic feedback on appliation availability status.
+Details on these features are included in *Configuring the Server*.
+
+
+Configuring the Server
+----------------------
+
+### Helpful tips
 
 Always have two terminal windows open. When you test changes you have made, this can help you keep from being locked out.
-
 
 ## Logging on to the Instance
 
@@ -22,22 +42,23 @@ ssh -i ~/.ssh/udacity_key.rsa root@52.11.199.213
 Reference: https://www.udacity.com/account#!/development_environment 
 
 
-## Adding User grader
-
+## Adding New User
+To add the user grader:
 ```
 sudo adduser grader
 ```
+Adduser requires a passworda and allows for user optional information.
 
 Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089468
 
 
 ## Giving grader sudo access
 
+To add sduo access, create the following file and add the language below:
 ```
 touch /etc/sudoers.d/grader
 sudo nano /etc/sudoers.d/grader
 ```
-
 Add the following line to the file /etc/sudoers.d/grader:
 ```
 grader ALL=(ALL) NOPASSWD:ALL
@@ -61,28 +82,27 @@ Make a .ssh directory
 ```
 mkdir .ssh
 ```
-
 Create a key locally.
 ```
 ssh-keygen
 ```
-Provide a password for the key file. Save the file locally in the home .ssh file.
+Provide a password for the key file. Save the file locally in the home .ssh file. Copy the key from your local file to the file /home/grader/.ssh/authorized_keys
 
-Copy the key from your local file to the file /home/grader/.ssh/authorized_keys
-
-Put property security in place
+Put property security in place:
 ```
 chmod 700 ~/.ssh
 chmod 644 ~/.ssh/authorized_keys
 
 Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089481
 
+
 ## Disable remote root login and enforce key-based authentication
+
 Edit the configuration file:
 ```
 sudo nano /etc/ssh/sshd_config
 ```
-Change thePermitRootLogin and PasswordAuthentication as follows:
+Change the PermitRootLogin and PasswordAuthentication as follows:
 ```
 PermitRootLogin no
 PasswordAuthentication no
@@ -109,6 +129,7 @@ https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089454
 
 ## Configure timezone to UTC
 
+The following program updates the time configuration:
 """
 sudo dpkg-reconfigure tzdata
 """
