@@ -1,4 +1,4 @@
-Provisioning a Webserver
+Configuring a Webserver
 ========================
 
 This project uses the application developed in Project 3 to configure a web server to deplay the appliation. Using a virtual server in Amazon’s Elastic Compute Cloud (EC2), the web server runs a stack of Linux, Apache, PostgreSQL and Python to serve and run the application. 
@@ -52,9 +52,9 @@ Adduser requires a passworda and allows for user optional information.
 Reference: https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089468
 
 
-## Giving grader sudo access
+## Giving user sudo access
 
-To add sduo access, create the following file and add the language below:
+To add sudo access, create the following file and add the language below:
 ```
 touch /etc/sudoers.d/grader
 sudo nano /etc/sudoers.d/grader
@@ -511,7 +511,7 @@ Reference: https://help.ubuntu.com/lts/serverguide/automatic-updates.html
 ## Monitor Status
 
 Install glances
-''
+''`
 sudo pip install Glances
 ```
 
