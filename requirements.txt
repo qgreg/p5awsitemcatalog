@@ -10,7 +10,7 @@ Flask-WTF==0.12
 Flask==0.10.1
 gunicorn==19.3.0
 html5lib==0.999
-httplib2==0.9.1
+httplib2==0.18.0
 itsdangerous==0.22
 Jinja2==2.7.2
 jsonpatch==1.3
